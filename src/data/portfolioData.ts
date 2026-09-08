@@ -10,7 +10,7 @@ export const initialPortfolioData: PortfolioData = {
 
   user: {
     name: 'Kitz B. Roca',
-    role: 'FULL-STACK VIBE CODER',
+    role: 'FULL-STACK VIBE CODER HAHAHA',
     avatar: '/images/profile.png',
     status: 'Available for hire',
     location: 'Burauen, Leyte, Philippines',
