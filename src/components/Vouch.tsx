@@ -134,8 +134,7 @@ export const Vouch: React.FC<VouchProps> = ({ vouch, onNavClick }) => {
               e.preventDefault();
               onNavClick('vouch');
             }}
-          >
-            COLLABORATOR VOUCH [{items.length}]
+          > VOUCH [{items.length}]
           </a>
         </div>
       </div>
