@@ -416,6 +416,8 @@ textarea:focus-visible {
 .footer-actions-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -424,6 +426,13 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.footer-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .icon-btn {
@@ -472,7 +481,6 @@ textarea:focus-visible {
   border: 1px solid transparent;
   cursor: pointer;
   transition: opacity 0.15s ease, transform 0.1s ease;
-  margin-left: auto;
 }
 
 .btn-resume:hover {
@@ -2392,8 +2400,13 @@ textarea:focus-visible {
     height: 11px;
   }
 
-  .btn-resume {
-    margin-left: 0;
+  .footer-actions-row {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .footer-right-actions {
+    margin-left: auto;
   }
 
   .tech-items-grid {
