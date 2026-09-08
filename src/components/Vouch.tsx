@@ -125,7 +125,7 @@ export const Vouch: React.FC<VouchProps> = ({ vouch, onNavClick }) => {
             onClick={handleOpenModal}
             aria-label="Leave a peer endorsement"
           >
-            <span className="vouch-add-plus">+</span> VOUCH FOR KITZ
+            <span className="vouch-add-plus">+</span> VOUCH KITZ
           </button>
           <a
             href="#vouch"
