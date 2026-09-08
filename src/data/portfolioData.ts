@@ -282,6 +282,11 @@ export const initialPortfolioData: PortfolioData = {
             icon: '/icons/laragon.svg',
             description: 'Isolated high-speed local dev environment',
           },
+          {
+            name: 'Turbo C',
+            icon: '/icons/turboc.svg',
+            description: 'Classic C/C++ IDE & compiler environment',
+          },
         ],
       },
     ],
