@@ -15,7 +15,7 @@ export const initialPortfolioData: PortfolioData = {
     status: 'Available for hire',
     location: 'Burauen, Leyte, Philippines',
     tagline: 'Turning ideas into functional, modern, and efficient software through code, creativity, and AI.',
-    resume_link: '#contact',
+  resume_link: '/resume.pdf',
     copyright: `© ${new Date().getFullYear()} KITZ B. ROCA. ALL RIGHTS RESERVED.`,
   },
 
