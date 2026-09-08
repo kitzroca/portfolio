@@ -280,7 +280,7 @@ export const initialPortfolioData: PortfolioData = {
   vouch: {
     section_id: 'vouch',
     section_num: '04',
-    section_header: '04 — PEER ENDORSEMENTS',
+    section_header: '04 — FEEDBACK',
     nav_badge: 'COLLABORATOR VOUCH',
     items: [],
   },
