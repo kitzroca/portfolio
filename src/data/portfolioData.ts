@@ -123,6 +123,17 @@ export const initialPortfolioData: PortfolioData = {
         live_url: '#',
         github_url: 'https://github.com/kitzroca',
       },
+      {
+        title: 'Grading System',
+        period: '2023 – PRESENT',
+        badge: 'Activity',
+        description:
+          'A student grading and academic records management system developed in Turbo C to calculate grades, handle student evaluations, and manage academic records.',
+        tech: ['C', 'Turbo C', 'CLI', 'Data Structures', 'File Handling'],
+        stats: 'Academic Computation · Record Management',
+        live_url: '#',
+        github_url: 'https://github.com/kitzroca',
+      },
     ],
   },
 
