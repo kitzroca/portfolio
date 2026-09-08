@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+    <rect width="48" height="48" rx="10" fill="#181D28"/>
+    <!-- Circular Async Loop -->
+    <circle cx="24" cy="24" r="14" stroke="#007ACC" stroke-width="2.5" stroke-dasharray="16 6" stroke-linecap="round"/>
+    <!-- Async Arrows -->
+    <path d="M24 10L27 7L24 4" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M24 38L21 41L24 44" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Center AJAX Label -->
+    <text x="24" y="27" fill="#38BDF8" font-family="system-ui, sans-serif" font-size="8" font-weight="900" letter-spacing="0.5" text-anchor="middle">AJAX</text>
+  </svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+    <rect width="48" height="48" rx="10" fill="#181D28"/>
+    <!-- Parent Class Box -->
+    <rect x="14" y="6" width="20" height="11" rx="3" fill="#0284C7" stroke="#38BDF8" stroke-width="1.5"/>
+    <text x="24" y="14" fill="#FFFFFF" font-family="monospace" font-size="6" font-weight="bold" text-anchor="middle">CLASS</text>
+    <!-- Child Instances -->
+    <rect x="6" y="27" width="16" height="13" rx="3" fill="#0F766E" stroke="#2DD4BF" stroke-width="1.5"/>
+    <text x="14" y="35" fill="#FFFFFF" font-family="monospace" font-size="5.5" font-weight="bold" text-anchor="middle">OBJECT</text>
+    <rect x="26" y="27" width="16" height="13" rx="3" fill="#D97706" stroke="#FBBF24" stroke-width="1.5"/>
+    <text x="34" y="35" fill="#FFFFFF" font-family="monospace" font-size="5.5" font-weight="bold" text-anchor="middle">INHERIT</text>
+    <!-- Inheritance Tree Lines -->
+    <path d="M24 17V22M24 22L14 27M24 22L34 27" stroke="#38BDF8" stroke-width="1.5" stroke-linecap="round"/>
+    <polygon points="24,17 21,21 27,21" fill="#38BDF8"/>
+  </svg>
