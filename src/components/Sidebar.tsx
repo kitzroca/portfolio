@@ -130,8 +130,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Right Actions: Resume Button & Theme Toggle */}
           <div className="footer-right-actions">
             {/* Solid White Resume ↗ Button */}
-            <a
+              <a
               href={user.resume_link}
+              target={user.resume_link.startsWith('#') ? undefined : '_blank'}
+              rel={user.resume_link.startsWith('#') ? undefined : 'noopener noreferrer'}
               className="btn-resume"
               onClick={(e) => {
                 if (user.resume_link.startsWith('#')) {
