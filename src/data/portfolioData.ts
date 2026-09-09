@@ -91,17 +91,6 @@ export const initialPortfolioData: PortfolioData = {
     nav_badge: 'FEATURED WORK',
     items: [
       {
-        title: 'Developer Portfolio & Technical Showcase',
-        period: '2025 – PRESENT',
-        badge: 'Activity',
-        description:
-          'A high-performance personal developer portfolio and technical showcase featuring live GitHub contribution activity pulse, interactive terminal, clean aesthetics, and dynamic project highlights.',
-        tech: ['React', 'TypeScript', 'Vite', 'CSS3', 'GitHub API'],
-        stats: 'Live GitHub Sync · Developer Showcase',
-        live_url: '#',
-        github_url: 'https://github.com/kitzroca/portfolio',
-      },
-      {
         title: 'OFF GPT - Offline AI Assistant',
         period: '2025 – PRESENT',
         badge: 'Activity',
