@@ -18,6 +18,8 @@ import { Contact } from '../components/Contact';
 import { BackToTop } from '../components/BackToTop';
 import { PortfolioSkeleton } from '../components/skeleton';
 
+import { ErrorBoundary } from '../components/ErrorBoundary';
+
 export const Home: React.FC = () => {
   const [data, setData] = useState<PortfolioData>(initialPortfolioData);
   const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
@@ -120,103 +122,101 @@ export const Home: React.FC = () => {
     }
   }, []);
 
-  // Initial page loading & transition coordinator
+  // Initial page loading coordinator: Guaranteed fast transition, prevents hanging on cold load
   useEffect(() => {
     let isMounted = true;
 
     // Trigger GitHub data fetch
     syncGitHub();
 
-    // Ensure document fonts and core layout are ready before transitioning from skeleton
-    const handleReady = () => {
-      // Subtle delay (450ms) guarantees shimmer is perceived gracefully and prevents harsh layout pop
-      const timer = setTimeout(() => {
-        if (isMounted) {
-          setIsPageLoading(false);
-        }
-      }, 450);
-      return timer;
-    };
+    // Fast safety transition: prevents cold-start hang on slow font networks
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) {
+        setIsPageLoading(false);
+      }
+    }, 280);
 
-    let timerId: ReturnType<typeof setTimeout> | undefined;
-
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        timerId = handleReady();
-      });
-    } else {
-      timerId = handleReady();
+    if (typeof document !== 'undefined' && document.fonts?.ready) {
+      document.fonts.ready
+        .then(() => {
+          if (isMounted) setIsPageLoading(false);
+        })
+        .catch(() => {
+          if (isMounted) setIsPageLoading(false);
+        });
     }
 
     return () => {
       isMounted = false;
-      if (timerId) clearTimeout(timerId);
+      clearTimeout(safetyTimer);
     };
   }, [syncGitHub]);
 
   return (
-    <AnimatePresence mode="wait">
-      {isPageLoading ? (
-        <motion.div
-          key="portfolio-skeleton"
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          style={{ width: '100%' }}
-        >
-          <PortfolioSkeleton />
-        </motion.div>
-      ) : (
-        <motion.div
-          key="portfolio-content"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="portfolio-app"
-        >
-          {/* Subtle 4px Top Gradient Bar */}
-          <ScrollProgress />
+    <ErrorBoundary>
+      <AnimatePresence>
+        {isPageLoading ? (
+          <motion.div
+            key="portfolio-skeleton"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            style={{ width: '100%', position: 'absolute', top: 0, left: 0, zIndex: 10 }}
+          >
+            <PortfolioSkeleton />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
-          {/* Mobile Fixed Top Navbar */}
-          <MobileNav
+      <motion.div
+        key="portfolio-content"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="portfolio-app"
+      >
+        {/* Subtle 4px Top Gradient Bar */}
+        <ScrollProgress />
+
+        {/* Mobile Fixed Top Navbar */}
+        <MobileNav
+          user={data.user}
+          navItems={data.nav_items}
+          activeSection={activeSection}
+          onNavClick={scrollTo}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          isMenuOpen={isMenuOpen}
+          toggleMenu={toggleMenu}
+          closeMenu={closeMenu}
+        />
+
+        {/* Master Two-Column Container (Max 1440px, Centered) */}
+        <div className="site-wrapper">
+          {/* Left Sidebar (Completely static, no motion) */}
+          <Sidebar
             user={data.user}
             navItems={data.nav_items}
+            socialLinks={data.social_links}
             activeSection={activeSection}
             onNavClick={scrollTo}
             theme={theme}
             toggleTheme={toggleTheme}
-            isMenuOpen={isMenuOpen}
-            toggleMenu={toggleMenu}
-            closeMenu={closeMenu}
           />
 
-          {/* Master Two-Column Container (Max 1440px, Centered) */}
-          <div className="site-wrapper">
-            {/* Left Sidebar (Completely static, no motion) */}
-            <Sidebar
-              user={data.user}
-              navItems={data.nav_items}
-              socialLinks={data.social_links}
-              activeSection={activeSection}
-              onNavClick={scrollTo}
-              theme={theme}
-              toggleTheme={toggleTheme}
-            />
+          {/* Right Scrollable Content Area */}
+          <main className="content-area" id="main-content">
+            <About about={data.about} onNavClick={scrollTo} />
+            <Projects projects={data.projects} onNavClick={scrollTo} />
+            <TechStack stack={data.stack} onNavClick={scrollTo} />
+            <Vouch vouch={data.vouch} onNavClick={scrollTo} />
+            <Contact contact={data.contact} onNavClick={scrollTo} />
+          </main>
+        </div>
 
-            {/* Right Scrollable Content Area */}
-            <main className="content-area" id="main-content">
-              <About about={data.about} onNavClick={scrollTo} />
-              <Projects projects={data.projects} onNavClick={scrollTo} />
-              <TechStack stack={data.stack} onNavClick={scrollTo} />
-              <Vouch vouch={data.vouch} onNavClick={scrollTo} />
-              <Contact contact={data.contact} onNavClick={scrollTo} />
-            </main>
-          </div>
-
-          {/* Floating Circular Back to Top Button */}
-          <BackToTop />
-        </motion.div>
-      )}
-    </AnimatePresence>
+        {/* Floating Circular Back to Top Button */}
+        <BackToTop />
+      </motion.div>
+    </ErrorBoundary>
   );
 };

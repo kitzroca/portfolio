@@ -10,19 +10,9 @@ interface GithubActivityProps {
 
 export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // If live GitHub activity is still loading (e.g. slow connection), show structured skeleton
-  if (activity.is_loading) {
-    return (
-      <div ref={containerRef} style={{ width: '100%' }}>
-        <ActivityPulseSkeleton />
-      </div>
-    );
-  }
-
   const totalWeeks = activity.matrix[0]?.length || 53;
 
-  // Scroll-linked motion: fade in + 96% -> 100% scale + subtle y movement
+  // Scroll-linked motion hooks - called unconditionally on every render
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start end', 'center center'],
@@ -32,7 +22,7 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
   const scrollOpacity = useTransform(scrollYProgress, [0, 0.6], [0.4, 1]);
   const scrollYOffset = useTransform(scrollYProgress, [0, 1], [18, 0]);
 
-  // Month labels matching GitHub's 53-week timeline
+  // Month labels matching GitHub's 53-week timeline - called unconditionally on every render
   const monthLabels = useMemo(() => {
     const today = new Date();
     const dayOfWeek = today.getUTCDay();
@@ -53,6 +43,15 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
     }
     return labels;
   }, [totalWeeks]);
+
+  // If live GitHub activity is still loading (e.g. slow connection), show structured skeleton
+  if (activity.is_loading) {
+    return (
+      <div ref={containerRef} style={{ width: '100%' }}>
+        <ActivityPulseSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div ref={containerRef} style={{ width: '100%' }}>
