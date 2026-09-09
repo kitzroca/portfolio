@@ -6,7 +6,13 @@ import {
   submitLiveVouch,
   deleteLiveVouch,
 } from '../services/vouchService';
-import { fadeInUp, staggerContainer, cardVariants, VIEWPORT_ONCE, buttonTap } from '../utils/motion';
+import {
+  fadeInUp,
+  staggerContainer,
+  vouchCascade,
+  VIEWPORT_ONCE,
+  buttonTap,
+} from '../utils/motion';
 
 interface VouchProps {
   vouch: VouchSectionData;
@@ -189,11 +195,11 @@ export const Vouch: React.FC<VouchProps> = ({ vouch, onNavClick }) => {
             viewport={VIEWPORT_ONCE}
             variants={staggerContainer(0.08, 0.05)}
           >
-            {visibleItems.map((item) => (
+            {visibleItems.map((item, idx) => (
               <motion.article
                 key={item.id}
                 className="vouch-card"
-                variants={cardVariants}
+                variants={vouchCascade(idx)}
                 whileHover={{ y: -3 }}
                 transition={{ duration: 0.25, ease: 'easeOut' }}
               >

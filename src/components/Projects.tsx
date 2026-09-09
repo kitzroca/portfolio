@@ -1,7 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ProjectsSectionData } from '../types/portfolio';
-import { fadeInUp, staggerContainer, cardVariants, VIEWPORT_ONCE } from '../utils/motion';
+import {
+  fadeInUp,
+  projectCardSlide,
+  VIEWPORT_ONCE,
+} from '../utils/motion';
 
 interface ProjectsProps {
   projects: ProjectsSectionData;
@@ -51,19 +55,17 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, onNavClick }) => {
         style={{ transformOrigin: 'left' }}
       />
 
-      <motion.div
-        className="projects-list"
-        initial="hidden"
-        whileInView="visible"
-        viewport={VIEWPORT_ONCE}
-        variants={staggerContainer(0.09, 0.05)}
-      >
+      <div className="projects-list">
         {projects.items.map((project, idx) => (
+          /* Dynamic alternating horizontal + vertical motion (left slide vs right slide) */
           <motion.article
             key={idx}
             className="project-card"
-            variants={cardVariants}
-            whileHover={{ y: -4 }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={VIEWPORT_ONCE}
+            variants={projectCardSlide(idx)}
+            whileHover={{ y: -4, scale: 1.008 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
           >
             <div className="project-card-header">
@@ -89,7 +91,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, onNavClick }) => {
             </div>
           </motion.article>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 };

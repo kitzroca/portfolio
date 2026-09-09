@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ContactSectionData } from '../types/portfolio';
-import { fadeInUp, staggerContainer, cardVariants, VIEWPORT_ONCE, buttonTap } from '../utils/motion';
+import {
+  fadeInUp,
+  blurToSharp,
+  staggerContainer,
+  cardVariants,
+  VIEWPORT_ONCE,
+  buttonTap,
+} from '../utils/motion';
 
 interface ContactProps {
   contact: ContactSectionData;
@@ -86,16 +93,19 @@ export const Contact: React.FC<ContactProps> = ({ contact, onNavClick }) => {
         viewport={VIEWPORT_ONCE}
         variants={fadeInUp(22)}
       >
-        <motion.h3 className="contact-headline" variants={fadeInUp(14)}>
+        {/* 07 — CONTACT: Fade + Blur-to-Sharp reveal */}
+        <motion.h3 className="contact-headline" variants={blurToSharp(0.05)}>
           {contact.headline}
         </motion.h3>
-        <motion.p className="contact-subtitle" variants={fadeInUp(12)}>
+
+        {/* Description fades into view */}
+        <motion.p className="contact-subtitle" variants={fadeInUp(14, 0.15)}>
           {contact.subtitle}
         </motion.p>
 
         <motion.div
           className="contact-channels-grid"
-          variants={staggerContainer(0.06, 0.08)}
+          variants={staggerContainer(0.06, 0.1)}
         >
           {contact.channels.map((ch, idx) => (
             <motion.div
@@ -117,7 +127,8 @@ export const Contact: React.FC<ContactProps> = ({ contact, onNavClick }) => {
           ))}
         </motion.div>
 
-        <div className="contact-cta-row">
+        {/* Contact buttons appear with a small upward movement */}
+        <motion.div className="contact-cta-row" variants={fadeInUp(14, 0.22)}>
           <motion.button
             type="button"
             className="btn-copy-email"
@@ -174,7 +185,7 @@ export const Contact: React.FC<ContactProps> = ({ contact, onNavClick }) => {
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
             </svg>
           </motion.a>
-        </div>
+        </motion.div>
       </motion.div>
     </section>
   );

@@ -1,7 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { StackSectionData, StackSkillItem } from '../types/portfolio';
-import { fadeInUp, staggerContainer, cardVariants, VIEWPORT_ONCE } from '../utils/motion';
+import {
+  fadeInUp,
+  staggerContainer,
+  techCardAlternating,
+  iconScale,
+  VIEWPORT_ONCE,
+} from '../utils/motion';
 
 interface TechStackProps {
   stack: StackSectionData;
@@ -51,45 +57,62 @@ export const TechStack: React.FC<TechStackProps> = ({ stack, onNavClick }) => {
         style={{ transformOrigin: 'left' }}
       />
 
-      <motion.div
-        className="stack-grid"
-        initial="hidden"
-        whileInView="visible"
-        viewport={VIEWPORT_ONCE}
-        variants={staggerContainer(0.12, 0.05)}
-      >
+      <div className="stack-grid">
         {stack.categories.map((cat, idx) => (
           <motion.div
             key={idx}
             className="stack-category-card"
-            variants={cardVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={VIEWPORT_ONCE}
+            variants={fadeInUp(18, idx * 0.1)}
           >
             <div className="stack-category-header">
               <h3 className="stack-category-title">{cat.title}</h3>
             </div>
 
+            {/* Staggered technology cards appearing one after another */}
             <motion.div
               className="tech-items-grid"
               role="list"
-              variants={staggerContainer(0.04, 0.05)}
+              initial="hidden"
+              whileInView="visible"
+              viewport={VIEWPORT_ONCE}
+              variants={staggerContainer(0.06, 0.08)}
             >
               {cat.skills.map((skill, sIdx) => {
                 const isObj = typeof skill === 'object' && skill !== null;
                 const item: StackSkillItem = isObj
                   ? (skill as StackSkillItem)
-                  : { name: skill as string, icon: `/icons/${(skill as string).toLowerCase().replace(/[^a-z0-9]/g, '')}.svg` };
+                  : {
+                      name: skill as string,
+                      icon: `/icons/${(skill as string)
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]/g, '')}.svg`,
+                    };
 
                 return (
                   <motion.div
                     key={sIdx}
                     className="tech-card"
                     role="listitem"
-                    title={item.description ? `${item.name}: ${item.description}` : item.name}
-                    variants={cardVariants}
-                    whileHover={{ y: -3, scale: 1.01 }}
+                    title={
+                      item.description
+                        ? `${item.name}: ${item.description}`
+                        : item.name
+                    }
+                    /* Alternating subtle left/right movement */
+                    variants={techCardAlternating(sIdx)}
+                    /* Small hover lift */
+                    whileHover={{ y: -3, scale: 1.015 }}
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                   >
-                    <div className="tech-icon-container" aria-hidden="true">
+                    {/* Icon scales from 90% -> 100% */}
+                    <motion.div
+                      className="tech-icon-container"
+                      aria-hidden="true"
+                      variants={iconScale}
+                    >
                       <img
                         src={item.icon}
                         alt={`${item.name} logo`}
@@ -102,7 +125,7 @@ export const TechStack: React.FC<TechStackProps> = ({ stack, onNavClick }) => {
                           target.style.display = 'none';
                         }}
                       />
-                    </div>
+                    </motion.div>
                     <div className="tech-info">
                       <h4 className="tech-name">{item.name}</h4>
                       {item.description && (
@@ -115,7 +138,7 @@ export const TechStack: React.FC<TechStackProps> = ({ stack, onNavClick }) => {
             </motion.div>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 };

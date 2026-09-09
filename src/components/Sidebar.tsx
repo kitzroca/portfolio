@@ -1,7 +1,14 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { UserProfile, NavItem, SocialLink } from '../types/portfolio';
-import { fadeInUp, scaleIn, staggerContainer, buttonTap, cardHover } from '../utils/motion';
+import {
+  fadeInUp,
+  scaleIn,
+  heroHeading,
+  staggerContainer,
+  buttonTap,
+  cardHover,
+} from '../utils/motion';
 
 interface SidebarProps {
   user: UserProfile;
@@ -22,6 +29,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   theme,
   toggleTheme,
 }) => {
+  // Subtle scroll-linked parallax for the avatar/header
+  const { scrollY } = useScroll();
+  const subtleParallaxY = useTransform(scrollY, [0, 600], [0, 14]);
+
   const renderSocialIcon = (icon: SocialLink['icon']) => {
     switch (icon) {
       case 'github':
@@ -50,12 +61,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside className="sidebar" aria-label="Personal Information and Navigation">
       <div className="sidebar-scrollable">
-        {/* Profile Header */}
+        {/* Profile Header with Subtle Parallax */}
         <motion.header
           className="profile-header"
+          style={{ y: subtleParallaxY }}
           initial="hidden"
           animate="visible"
-          variants={staggerContainer(0.08, 0.05)}
+          variants={staggerContainer(0.09, 0.05)}
         >
           {/* Avatar + Status/Location row */}
           <div className="profile-top-row">
@@ -81,16 +93,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </motion.div>
           </div>
 
-          {/* Name & Role */}
-          <motion.h1 className="user-name" variants={fadeInUp(16, 0.1)}>
+          {/* 01 — HERO Heading: 95% -> 100% scale + fade in */}
+          <motion.h1 className="user-name" variants={heroHeading}>
             {user.name}
           </motion.h1>
-          <motion.div className="user-role" variants={fadeInUp(12, 0.15)}>
+
+          {/* Subtitle / Role: Small upward movement shortly after */}
+          <motion.div className="user-role" variants={fadeInUp(14, 0.12)}>
             {user.role}
           </motion.div>
 
           {/* Summary Tagline */}
-          <motion.p className="user-tagline" variants={fadeInUp(12, 0.2)}>
+          <motion.p className="user-tagline" variants={fadeInUp(14, 0.18)}>
             {user.tagline}
           </motion.p>
         </motion.header>
@@ -128,16 +142,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
 
-      {/* Sidebar Footer (Socials, Solid White Resume Button, Theme Toggle, Copyright) */}
+      {/* Sidebar Footer with Staggered CTA reveals */}
       <motion.footer
         className="sidebar-footer"
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer(0.08, 0.35)}
       >
         <div className="footer-actions-row">
           {/* Social Icons Group */}
-          <div className="social-links-group" aria-label="Social Profiles">
+          <motion.div className="social-links-group" aria-label="Social Profiles" variants={fadeInUp(10)}>
             {socialLinks.map((social) => (
               <motion.a
                 key={social.name}
@@ -152,7 +166,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {renderSocialIcon(social.icon)}
               </motion.a>
             ))}
-          </div>
+          </motion.div>
 
           {/* Right Actions: Resume Button & Theme Toggle */}
           <div className="footer-right-actions">
@@ -162,6 +176,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               target={user.resume_link.startsWith('#') ? undefined : '_blank'}
               rel={user.resume_link.startsWith('#') ? undefined : 'noopener noreferrer'}
               className="btn-resume"
+              variants={fadeInUp(12)}
               onClick={(e) => {
                 if (user.resume_link.startsWith('#')) {
                   e.preventDefault();
@@ -191,6 +206,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               id="theme-toggle"
               aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
               onClick={toggleTheme}
+              variants={fadeInUp(12)}
               whileHover={cardHover}
               whileTap={buttonTap}
             >

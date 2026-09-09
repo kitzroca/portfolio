@@ -2,7 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { AboutSectionData } from '../types/portfolio';
 import { GithubActivity } from './GithubActivity';
-import { fadeInUp, staggerContainer, cardVariants, VIEWPORT_ONCE } from '../utils/motion';
+import {
+  fadeInUp,
+  fadeInFrom,
+  staggerContainer,
+  cardVariants,
+  VIEWPORT_ONCE,
+} from '../utils/motion';
 
 interface AboutProps {
   about: AboutSectionData;
@@ -54,22 +60,22 @@ export const About: React.FC<AboutProps> = ({ about, onNavClick }) => {
         style={{ transformOrigin: 'left' }}
       />
 
-      {/* Two paragraphs of bio text in soft blue (#7fa8e8) */}
+      {/* Two paragraphs of bio text: Enters gently from slightly below */}
       <motion.div
         className="bio-wrapper"
         initial="hidden"
         whileInView="visible"
         viewport={VIEWPORT_ONCE}
-        variants={staggerContainer(0.1, 0.05)}
+        variants={staggerContainer(0.12, 0.05)}
       >
         {about.bio_paragraphs.map((bioP, idx) => (
-          <motion.p key={idx} className="bio-paragraph" variants={fadeInUp(16)}>
+          <motion.p key={idx} className="bio-paragraph" variants={fadeInUp(18)}>
             {bioP}
           </motion.p>
         ))}
       </motion.div>
 
-      {/* 4-Column Stat Bar (Single connected box with internal hairline dividers) */}
+      {/* 4-Column Stat Bar: Visual metrics element enters from opposite direction (slight top/right reveal) */}
       <motion.div
         className="stats-bar-box"
         role="region"
@@ -77,7 +83,7 @@ export const About: React.FC<AboutProps> = ({ about, onNavClick }) => {
         initial="hidden"
         whileInView="visible"
         viewport={VIEWPORT_ONCE}
-        variants={staggerContainer(0.08, 0.1)}
+        variants={fadeInFrom('top', 16, 0.1)}
       >
         {about.stats.map((stat, idx) => (
           <motion.div
