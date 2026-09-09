@@ -53,6 +53,8 @@ export interface ActivityData {
   commits_count?: number | string;
   is_loading?: boolean;
   has_live_data?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 export interface AboutSectionData {

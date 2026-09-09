@@ -5,7 +5,7 @@ export const defaultMatrix: number[][] = Array.from({ length: 7 }, () => Array(5
 export const initialPortfolioData: PortfolioData = {
   page_title: 'Kitz - Vibe Coder Portfolio',
   meta_description:
-    'Personal portfolio and technical showcase of Kitz B. Roca, a Full-Stack Vibe Coder specializing in CodeIgniter 3, PHP, JavaScript, modern web architectures, and AI-driven applications.',
+    'Personal portfolio of Kitz B. Roca, a Full-Stack Vibe Coder specializing in CodeIgniter 3, PHP, JavaScript, modern web architectures, and AI-driven applications.',
 
   user: {
     name: 'Kitz B. Roca',
@@ -53,7 +53,7 @@ export const initialPortfolioData: PortfolioData = {
     section_header: '01 — BACKGROUND & BIO',
     nav_badge: 'ABOUT ME',
     bio_paragraphs: [
-      'I am a full-stack vibe coder who enjoys turning ideas into working software. I build web applications, APIs, and user-friendly interfaces with a focus on clean and efficient code.',
+      'I am a full-stack vibe coder who enjoys turning ideas into working software. I build web applications and user-friendly interfaces with a focus on clean and efficient code.',
       'I use modern technologies and AI tools to build projects faster, solve problems, and turn ideas into real applications.',
     ],
     stats: [
@@ -308,7 +308,7 @@ export const initialPortfolioData: PortfolioData = {
     nav_badge: 'CONTACT',
     headline: 'Interested in a Project or Collaboration Opportunity?',
     subtitle:
-      'I am currently open for full-time positions, freelance contracts, and software consulting. Reach out directly and I will respond within 24 hours.',
+      'I am currently open for full-time positions, freelance contracts. Reach out directly and I will respond within 24 hours.',
     email: 'rocakitz914@gmail.com',
     channels: [
       {

@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ActivityData } from '../types/portfolio';
 import { VIEWPORT_ONCE } from '../utils/motion';
+import { ActivityPulseSkeleton } from './skeleton/ActivityPulseSkeleton';
 
 interface GithubActivityProps {
   activity: ActivityData;
@@ -9,6 +10,16 @@ interface GithubActivityProps {
 
 export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // If live GitHub activity is still loading (e.g. slow connection), show structured skeleton
+  if (activity.is_loading) {
+    return (
+      <div ref={containerRef} style={{ width: '100%' }}>
+        <ActivityPulseSkeleton />
+      </div>
+    );
+  }
+
   const totalWeeks = activity.matrix[0]?.length || 53;
 
   // Scroll-linked motion: fade in + 96% -> 100% scale + subtle y movement
@@ -80,6 +91,25 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
             <span aria-hidden="true">↗</span>
           </motion.a>
         </div>
+
+        {/* Error/Notice Banner for failed or rate-limited requests */}
+        {activity.error && (
+          <div className="activity-error-panel" role="alert" style={{ marginBottom: 12 }}>
+            <span className="activity-error-text">
+              {activity.error}
+            </span>
+            {activity.onRetry && (
+              <button
+                type="button"
+                className="btn-activity-retry"
+                onClick={activity.onRetry}
+                aria-label="Retry syncing live GitHub data"
+              >
+                <span>↺</span> Retry Sync
+              </button>
+            )}
+          </div>
+        )}
 
         {/* GitHub Official Activity Card */}
         <div className="github-overview-card">

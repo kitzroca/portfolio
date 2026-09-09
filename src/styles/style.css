@@ -46,6 +46,11 @@
   --card-radius: 16px;
   --card-radius-sm: 10px;
   --box-padding: 24px;
+
+  /* Skeleton Loading System Tokens */
+  --skeleton-base: rgba(255, 255, 255, 0.05);
+  --skeleton-shine: rgba(255, 255, 255, 0.12);
+  --skeleton-border: rgba(255, 255, 255, 0.08);
 }
 
 /* Light Theme Variables */
@@ -78,6 +83,11 @@
   --heat-3: #0f172a;
 
   --top-bar-color: #0a0a0a;
+
+  /* Skeleton Loading System Tokens (Light Theme) */
+  --skeleton-base: rgba(0, 0, 0, 0.045);
+  --skeleton-shine: rgba(0, 0, 0, 0.11);
+  --skeleton-border: rgba(0, 0, 0, 0.08);
 }
 
 /* Base Reset */
@@ -3038,5 +3048,91 @@ canvas {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   PROFESSIONAL SKELETON LOADING SYSTEM
+   Lightweight, GPU-accelerated shimmer, zero external dependencies
+   ========================================================================== */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 0%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-base) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-wrapper {
+  pointer-events: none;
+  user-select: none;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Activity Error Panel & Retry State */
+.activity-error-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 18px;
+  border-radius: var(--card-radius-sm, 10px);
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.activity-error-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #f87171;
+}
+
+[data-theme="light"] .activity-error-text {
+  color: #dc2626;
+}
+
+.btn-activity-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-hairline);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-activity-retry:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none !important;
+    background: var(--skeleton-base) !important;
   }
 }
