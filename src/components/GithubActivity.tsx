@@ -150,33 +150,9 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
 
         {/* Bottom Section: Activity overview & Crosshair Activity Chart */}
         <div className="github-overview-bottom">
-          {/* Left Column: Activity overview & Contributed to repository */}
+          {/* Left Column: Activity overview */}
           <div className="github-overview-left">
             <h3 className="github-overview-heading">Activity overview</h3>
-            <div className="github-repo-contributed">
-              <svg
-                aria-hidden="true"
-                height="16"
-                viewBox="0 0 16 16"
-                version="1.1"
-                width="16"
-                className="github-repo-icon"
-                fill="currentColor"
-              >
-                <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 0 0 1.5h2.5a2.25 2.25 0 0 0 2.25-2.25V.75A2.25 2.25 0 0 0 13.25-1.5H4.5A4 4 0 0 0 .5 2.5v10.75a.75.75 0 0 0 1.5 0V2.5z" />
-              </svg>
-              <span>
-                Contributed to{' '}
-                <a
-                  href="https://github.com/kitzroca/portfolio"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="github-repo-link"
-                >
-                  kitzroca/portfolio
-                </a>
-              </span>
-            </div>
           </div>
 
           {/* Vertical Hairline Divider between Left and Chart */}
