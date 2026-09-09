@@ -1,7 +1,6 @@
 import { PortfolioData } from '../types/portfolio';
 
-const defaultMatrix = Array.from({ length: 4 }, () => Array(52).fill(0));
-defaultMatrix[1][51] = 3; // Seed latest contribution for kitzroca (52nd week)
+export const defaultMatrix: number[][] = Array.from({ length: 7 }, () => Array(53).fill(0));
 
 export const initialPortfolioData: PortfolioData = {
   page_title: 'Kitz - Vibe Coder Portfolio',
@@ -15,7 +14,7 @@ export const initialPortfolioData: PortfolioData = {
     status: 'Available for hire',
     location: 'Burauen, Leyte, Philippines',
     tagline: 'Turning ideas into functional, modern, and efficient software through code, creativity, and AI.',
-  resume_link: '/resume.pdf',
+    resume_link: '/resume.pdf',
     copyright: `© ${new Date().getFullYear()} KITZ B. ROCA. ALL RIGHTS RESERVED.`,
   },
 
@@ -59,8 +58,8 @@ export const initialPortfolioData: PortfolioData = {
     ],
     stats: [
       {
-        value: '2',
-        label: 'CONTRIBUTIONS',
+        value: '...',
+        label: 'COMMITS',
         has_link: true,
         link: 'https://github.com/kitzroca',
       },
@@ -73,14 +72,15 @@ export const initialPortfolioData: PortfolioData = {
       handle: '@kitzroca',
       handle_url: 'https://github.com/kitzroca',
       matrix: defaultMatrix,
-      progress: 2,
+      progress: 100,
       stats: [
         { key: 'RECENT', val: 'ACTIVE' },
-        { key: 'COMMITS', val: '2 COMMITS' },
-        { key: 'TOTAL', val: '2 CONTRIBUTIONS' },
+        { key: 'TOTAL', val: 'SYNCING...' },
         { key: 'STATUS', val: 'CONTINUOUS SHIPPING' },
       ],
-      commits_count: 2,
+      commits_count: '...',
+      is_loading: true,
+      has_live_data: false,
     },
   },
 
@@ -90,6 +90,17 @@ export const initialPortfolioData: PortfolioData = {
     section_header: '02 — MY PROJECTS',
     nav_badge: 'FEATURED WORK',
     items: [
+      {
+        title: 'Developer Portfolio & Technical Showcase',
+        period: '2025 – PRESENT',
+        badge: 'Activity',
+        description:
+          'A high-performance personal developer portfolio and technical showcase featuring live GitHub contribution activity pulse, interactive terminal, clean aesthetics, and dynamic project highlights.',
+        tech: ['React', 'TypeScript', 'Vite', 'CSS3', 'GitHub API'],
+        stats: 'Live GitHub Sync · Developer Showcase',
+        live_url: '#',
+        github_url: 'https://github.com/kitzroca/portfolio',
+      },
       {
         title: 'OFF GPT - Offline AI Assistant',
         period: '2025 – PRESENT',

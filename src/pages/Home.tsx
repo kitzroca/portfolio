@@ -32,27 +32,35 @@ export const Home: React.FC = () => {
       setData((prev) => {
         const next = { ...prev };
         const updatedStats = [...next.about.stats];
-        if (gh.contributions.display_total !== 'N/A') {
+        const userGithubUrl = `https://github.com/${gh.profile.username || 'kitzroca'}`;
+
+        if (gh.contributions && gh.contributions.display_total && gh.contributions.display_total !== 'N/A') {
           updatedStats[0] = {
             ...updatedStats[0],
-            value: gh.contributions.display_total,
-            link: gh.profile.github_url,
+            value: String(gh.contributions.commits || gh.contributions.total || updatedStats[0].value),
+            link: userGithubUrl,
           };
         }
 
+        const commitsCount = gh.contributions.commits || next.about.activity.commits_count;
+        const totalLabel = gh.activity_stats.total_label && gh.activity_stats.total_label !== 'N/A'
+          ? gh.activity_stats.total_label
+          : `${commitsCount} COMMITS`;
+
         const updatedActivity = {
           ...next.about.activity,
-          handle: `@${gh.profile.username}`,
-          handle_url: gh.profile.github_url,
-          matrix: gh.heatmap.matrix,
-          progress: gh.heatmap.progress,
+          handle: `@${gh.profile.username || 'kitzroca'}`,
+          handle_url: userGithubUrl,
+          matrix: gh.heatmap.matrix || next.about.activity.matrix,
+          progress: gh.heatmap.progress || 100,
           stats: [
-            { key: 'RECENT', val: gh.activity_stats.recent_label },
-            { key: 'COMMITS', val: `${gh.contributions.commits || 2} COMMITS` },
-            { key: 'TOTAL', val: gh.activity_stats.total_label },
+            { key: 'RECENT', val: gh.activity_stats.recent_label || 'ACTIVE' },
+            { key: 'TOTAL', val: totalLabel },
             { key: 'STATUS', val: 'CONTINUOUS SHIPPING' },
           ],
-          commits_count: gh.contributions.commits || 2,
+          commits_count: commitsCount,
+          is_loading: false,
+          has_live_data: true,
         };
 
         return {

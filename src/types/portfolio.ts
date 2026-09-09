@@ -51,6 +51,8 @@ export interface ActivityData {
   progress: number;
   stats: ActivityStat[];
   commits_count?: number | string;
+  is_loading?: boolean;
+  has_live_data?: boolean;
 }
 
 export interface AboutSectionData {

@@ -1,6 +1,9 @@
 import { GitHubData, GitHubCommitItem } from '../types/github';
 
 const DEFAULT_USERNAME = 'kitzroca';
+const DEFAULT_REPO = 'portfolio';
+const CACHE_KEY = 'gh_activity_data_v3';
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes cache to respect GitHub rate limits
 
 /**
  * Formats an ISO date string into human-friendly relative date.
@@ -23,156 +26,221 @@ function formatCommitDate(dateString: string): string {
 }
 
 /**
- * Builds a 4x52 matrix from GitHub daily contributions covering a full year.
- * Maps the last 52 weeks into 4 rows based on day of week:
- * Row 0: Sun/Mon
- * Row 1: Tue/Wed
- * Row 2: Thu/Fri
- * Row 3: Sat
+ * Maps an array of date-grouped contribution counts into a 53-week × 7-row matrix
+ * matching GitHub's official contribution calendar (Sun=0 to Sat=6).
+ * Intensity levels:
+ * 0: 0 contributions
+ * 1: 1-2 contributions
+ * 2: 3-5 contributions
+ * 3: 6-9 contributions
+ * 4: 10+ contributions (or level 3 for bright green)
  */
-function buildContributionMatrix(
-  contributions: Array<{ date: string; count: number; level: number }>
-): number[][] {
-  const weeks: Array<Array<{ date: string; count: number; level: number }>> = [];
-  let currentWeek: Array<{ date: string; count: number; level: number }> = [];
+export function buildLiveMatrixFromDateMap(dateCountMap: Record<string, number>): number[][] {
+  const totalWeeks = 53;
+  const matrix: number[][] = Array.from({ length: 7 }, () => Array(totalWeeks).fill(0));
+  const today = new Date();
 
-  contributions.forEach((day) => {
-    currentWeek.push(day);
-    if (new Date(day.date).getDay() === 6) {
-      weeks.push(currentWeek);
-      currentWeek = [];
+  // Find the start date: Sunday of the week that started 52 weeks ago
+  const dayOfWeek = today.getUTCDay(); // 0=Sun..6=Sat
+  const startDate = new Date(today);
+  startDate.setUTCDate(today.getUTCDate() - (dayOfWeek + (totalWeeks - 1) * 7));
+
+  for (let w = 0; w < totalWeeks; w++) {
+    for (let r = 0; r < 7; r++) {
+      const cellDate = new Date(startDate);
+      cellDate.setUTCDate(startDate.getUTCDate() + (w * 7 + r));
+
+      // Don't mark future days if beyond today
+      if (cellDate > today) {
+        matrix[r][w] = 0;
+        continue;
+      }
+
+      const dateKey = cellDate.toISOString().slice(0, 10);
+      const count = dateCountMap[dateKey] || 0;
+
+      let level = 0;
+      if (count >= 10) level = 4;
+      else if (count >= 6) level = 3;
+      else if (count >= 3) level = 2;
+      else if (count >= 1) level = 1;
+
+      matrix[r][w] = level;
     }
-  });
-  if (currentWeek.length > 0) {
-    weeks.push(currentWeek);
   }
-
-  const last52 = weeks.slice(-52);
-  const matrix = Array.from({ length: 4 }, () => Array(52).fill(0));
-
-  last52.forEach((week, colIndex) => {
-    week.forEach((day) => {
-      const dayOfWeek = new Date(day.date).getDay();
-      let row = 0;
-      if (dayOfWeek === 0 || dayOfWeek === 1) row = 0;
-      else if (dayOfWeek === 2 || dayOfWeek === 3) row = 1;
-      else if (dayOfWeek === 4 || dayOfWeek === 5) row = 2;
-      else row = 3;
-
-      const lvl = Math.min(Math.max(day.level, 0), 3);
-      matrix[row][colIndex] = Math.max(matrix[row][colIndex], lvl);
-    });
-  });
 
   return matrix;
 }
 
 /**
- * Direct client-side fetch from public GitHub API and jogruber contributions endpoint.
- * Works seamlessly in local dev, Vercel, Netlify, and static hosting without server tokens.
+ * Builds matrix from explicit list of contribution days (e.g. from GraphQL or scraper API).
  */
-async function fetchClientGitHub(username: string): Promise<GitHubData> {
-  const [profileRes, contribRes, commitsRes] = await Promise.allSettled([
-    fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, {
-      headers: { Accept: 'application/vnd.github+json' },
-    }).then((r) => (r.ok ? r.json() : null)),
-    fetch(`https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(username)}?y=last`).then(
-      (r) => (r.ok ? r.json() : null)
+export function buildContributionMatrixFromDays(
+  contributions: Array<{ date: string; count: number; level: number }>
+): number[][] {
+  const dateMap: Record<string, number> = {};
+  contributions.forEach((c) => {
+    dateMap[c.date] = c.count;
+  });
+  return buildLiveMatrixFromDateMap(dateMap);
+}
+
+/**
+ * Creates an empty/neutral 7-row × 53-week matrix when waiting for live data.
+ */
+export function createEmptyMatrix(): number[][] {
+  return Array.from({ length: 7 }, () => Array(53).fill(0));
+}
+
+/**
+ * Direct client-side fetch from public GitHub API.
+ * Uses public endpoints:
+ * - https://api.github.com/users/{username}
+ * - https://api.github.com/repos/{username}/{repo}/commits?per_page=100
+ * No token is exposed in the frontend code.
+ */
+async function fetchClientGitHub(username: string = DEFAULT_USERNAME, repo: string = DEFAULT_REPO): Promise<GitHubData> {
+  const headers = { Accept: 'application/vnd.github+json' };
+
+  const [profileRes, commitsRes, contribRes] = await Promise.allSettled([
+    fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, { headers }).then((r) =>
+      r.ok ? r.json() : null
     ),
-    fetch(`https://api.github.com/repos/${encodeURIComponent(username)}/kitz-portfolio/commits?per_page=5`, {
-      headers: { Accept: 'application/vnd.github+json' },
+    fetch(`https://api.github.com/repos/${encodeURIComponent(username)}/${encodeURIComponent(repo)}/commits?per_page=100`, {
+      headers,
     }).then((r) => (r.ok ? r.json() : null)),
+    fetch(`https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(username)}?y=last`).then((r) =>
+      r.ok ? r.json() : null
+    ),
   ]);
 
   const profile = profileRes.status === 'fulfilled' && profileRes.value ? profileRes.value : {};
-  const contribData = contribRes.status === 'fulfilled' && contribRes.value ? contribRes.value : {};
   const rawCommits = commitsRes.status === 'fulfilled' && commitsRes.value ? commitsRes.value : null;
+  const contribData = contribRes.status === 'fulfilled' && contribRes.value ? contribRes.value : {};
 
-  const total = contribData.total?.lastYear ?? 2;
-  const contributionsList: Array<{ date: string; count: number; level: number }> =
-    contribData.contributions ?? [];
+  // Parse commits if returned
+  let parsedCommits: GitHubCommitItem[] = [];
+  const dateCountMap: Record<string, number> = {};
 
-  const matrix =
-    contributionsList.length > 0
-      ? buildContributionMatrix(contributionsList)
-      : (() => {
-          const m = Array.from({ length: 4 }, () => Array(52).fill(0));
-          m[1][51] = 3; // Seed current active cell for today (52nd week)
-          return m;
-        })();
+  if (Array.isArray(rawCommits)) {
+    parsedCommits = rawCommits.map((c: any) => {
+      const commitDateStr = c.commit?.author?.date || c.commit?.committer?.date || '';
+      if (commitDateStr) {
+        const dateKey = commitDateStr.slice(0, 10);
+        dateCountMap[dateKey] = (dateCountMap[dateKey] || 0) + 1;
+      }
 
-  const recentDays = contributionsList.slice(-14);
-  const recentCount = recentDays.reduce((sum, d) => sum + (d.count || 0), 0);
-  const recentLabel = recentCount > 0 ? 'ACTIVE' : 'ACTIVE';
-
-  const progress = total > 0 ? Math.min(100, Math.max(2, Math.round((total / 100) * 100))) : 0;
-
-  // Process commits
-  let commits: GitHubCommitItem[] = [
-    {
-      sha: '8606b4f',
-      message: 'Initial commit',
-      repo: 'kitz-portfolio',
-      date: 'Today',
-      url: `https://github.com/${username}/kitz-portfolio/commit/8606b4fa53041599e53449f3c52fabca9f349bcd`,
-    },
-  ];
-
-  if (Array.isArray(rawCommits) && rawCommits.length > 0) {
-    commits = rawCommits.map((c: any) => ({
-      sha: (c.sha || '').slice(0, 7),
-      message: c.commit?.message?.split('\n')[0] || 'Commit',
-      repo: 'kitz-portfolio',
-      date: formatCommitDate(c.commit?.author?.date || ''),
-      url: c.html_url || `https://github.com/${username}/kitz-portfolio`,
-    }));
+      return {
+        sha: (c.sha || '').slice(0, 7),
+        message: c.commit?.message?.split('\n')[0] || 'Commit',
+        repo: repo,
+        date: formatCommitDate(commitDateStr),
+        url: c.html_url || `https://github.com/${username}/${repo}/commit/${c.sha}`,
+      };
+    });
   }
+
+  // Also integrate jogruber contribution days if available
+  const jogruberDays: Array<{ date: string; count: number; level: number }> = contribData.contributions || [];
+  jogruberDays.forEach((d) => {
+    if (d.count > 0) {
+      dateCountMap[d.date] = Math.max(dateCountMap[d.date] || 0, d.count);
+    }
+  });
+
+  const totalCommitsCount = parsedCommits.length;
+  const jogruberTotal = contribData.total?.lastYear ?? 0;
+  const liveTotal = Math.max(totalCommitsCount, jogruberTotal);
+
+  // If live data couldn't be loaded at all (e.g. rate-limited and no cache), throw so caller handles it
+  if (totalCommitsCount === 0 && jogruberTotal === 0 && !profile.login) {
+    throw new Error('GitHub API rate limit reached or network unavailable.');
+  }
+
+  // Build 53x7 matrix from real activity dates
+  const matrix = buildLiveMatrixFromDateMap(dateCountMap);
+
+  const displayTotal = `${liveTotal} COMMITS`;
 
   return {
     profile: {
       username: profile.login || username,
-      display_name: profile.name || username,
+      display_name: profile.name || profile.login || username,
       avatar_url: profile.avatar_url || '',
       public_repos: profile.public_repos ?? 1,
       followers: profile.followers ?? 0,
       following: profile.following ?? 0,
-      github_url: profile.html_url || `https://github.com/${username}`,
+      github_url: `https://github.com/${username}`,
     },
     contributions: {
-      total,
-      commits: total,
-      display_total: total.toLocaleString(),
-      display_commits: total.toLocaleString(),
+      total: liveTotal,
+      commits: liveTotal,
+      display_total: displayTotal,
+      display_commits: displayTotal,
     },
     heatmap: {
       matrix,
-      progress,
+      progress: 100,
     },
     activity_stats: {
-      recent_label: recentLabel,
-      total_label: `${total.toLocaleString()} CONTRIBUTIONS`,
+      recent_label: 'ACTIVE',
+      total_label: displayTotal,
     },
-    commits,
+    commits: parsedCommits,
   };
 }
 
-export async function fetchGitHubData(username: string = DEFAULT_USERNAME): Promise<GitHubData | null> {
-  // 1. Try local or deployed backend API endpoint first
+/**
+ * Main fetch function:
+ * 1. Checks sessionStorage cache (valid for 5 mins) to prevent burning API rate limits.
+ * 2. Tries backend `/api/github` (e.g. on Vercel or local proxy with GITHUB_TOKEN).
+ * 3. Tries client-side direct public GitHub API fetch.
+ * 4. Saves fresh live data into sessionStorage.
+ */
+export async function fetchGitHubData(
+  username: string = DEFAULT_USERNAME,
+  repo: string = DEFAULT_REPO
+): Promise<GitHubData | null> {
+  // Check session cache first
+  try {
+    const cachedStr = sessionStorage.getItem(CACHE_KEY);
+    if (cachedStr) {
+      const parsed = JSON.parse(cachedStr);
+      if (parsed && parsed.timestamp && Date.now() - parsed.timestamp < CACHE_TTL_MS && parsed.data) {
+        return parsed.data as GitHubData;
+      }
+    }
+  } catch {
+    // SessionStorage may fail in restricted/private browsing modes
+  }
+
+  // 1. Try serverless backend endpoint (/api/github)
   try {
     const res = await fetch('/api/github');
     if (res.ok) {
       const data: GitHubData = await res.json();
-      if (data && data.contributions && data.contributions.display_total !== 'N/A') {
+      if (data && data.contributions && data.contributions.display_total && data.contributions.display_total !== 'N/A') {
+        try {
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }));
+        } catch {
+          /* ignore */
+        }
         return data;
       }
     }
   } catch {
-    // Backend API not reachable (normal in local Vite development)
+    // API endpoint unreachable (e.g. standalone Vite dev server without proxy running)
   }
 
   // 2. Direct public client fetch fallback
   try {
-    return await fetchClientGitHub(username);
+    const data = await fetchClientGitHub(username, repo);
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }));
+    } catch {
+      /* ignore */
+    }
+    return data;
   } catch (error) {
     console.warn('Could not load live GitHub API data:', error);
     return null;
