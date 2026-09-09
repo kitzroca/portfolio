@@ -840,61 +840,6 @@ textarea:focus-visible {
   border-radius: 4px;
 }
 
-/* Calendar Controls Bar & View Toggle */
-.calendar-controls-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  width: 100%;
-}
-
-.calendar-view-toggle {
-  display: inline-flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-hairline);
-  border-radius: 6px;
-  padding: 2px;
-  gap: 2px;
-}
-
-[data-theme="light"] .calendar-view-toggle {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: #d0d7de;
-}
-
-.cal-toggle-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  line-height: 1.2;
-}
-
-.cal-toggle-btn:hover {
-  color: var(--text-primary);
-}
-
-.cal-toggle-btn.active {
-  background: var(--bg-card);
-  color: #39d353;
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-[data-theme="light"] .cal-toggle-btn.active {
-  background: #ffffff;
-  color: #1a7f37;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-}
-
 .heatmap-mobile-swipe-hint {
   display: none;
 }
@@ -906,7 +851,7 @@ textarea:focus-visible {
     font-family: var(--font-mono);
     font-size: 0.64rem;
     color: var(--text-muted);
-    padding: 0 2px;
+    padding: 0 2px 8px 0;
     letter-spacing: 0.02em;
   }
 }
@@ -916,15 +861,6 @@ textarea:focus-visible {
   flex-direction: column;
   min-width: 680px;
   width: 100%;
-}
-
-.github-calendar-inner.is-responsive {
-  min-width: 0 !important;
-  width: 100% !important;
-}
-
-.heatmap-scroll-wrap.is-responsive {
-  overflow-x: hidden !important;
 }
 
 @media (max-width: 500px) {
