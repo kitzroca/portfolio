@@ -12,19 +12,45 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const heatmapScrollRef = useRef<HTMLDivElement>(null);
   const totalWeeks = activity.matrix[0]?.length || 53;
+  const [isMobile, setIsMobile] = React.useState<boolean>(false);
+
+  // Detect mobile viewport so we don't apply scale/y transforms that reset horizontal scroll in WebKit
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Auto-scroll heatmap to the right (most recent weeks) so green commit activity is visible on mobile
   useEffect(() => {
-    const scrollToLatest = () => {
-      if (heatmapScrollRef.current) {
-        heatmapScrollRef.current.scrollLeft = heatmapScrollRef.current.scrollWidth;
+    const el = heatmapScrollRef.current;
+    if (!el) return;
+
+    const scrollToEnd = () => {
+      if (el) {
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        if (maxScroll > 0) {
+          el.scrollLeft = maxScroll;
+        }
       }
     };
 
-    scrollToLatest();
-    const timer = setTimeout(scrollToLatest, 150);
-    return () => clearTimeout(timer);
-  }, [activity.matrix, activity.commits_count]);
+    scrollToEnd();
+    const r1 = requestAnimationFrame(scrollToEnd);
+    const t1 = setTimeout(scrollToEnd, 100);
+    const t2 = setTimeout(scrollToEnd, 350);
+    const t3 = setTimeout(scrollToEnd, 750);
+
+    return () => {
+      cancelAnimationFrame(r1);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [activity.matrix, activity.commits_count, isMobile]);
 
   // Scroll-linked motion hooks - called unconditionally on every render
   const { scrollYProgress } = useScroll({
@@ -72,9 +98,9 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
       <motion.div
         className="activity-pulse-panel"
         style={{
-          scale: scrollScale,
-          opacity: scrollOpacity,
-          y: scrollYOffset,
+          scale: isMobile ? 1 : scrollScale,
+          opacity: isMobile ? 1 : scrollOpacity,
+          y: isMobile ? 0 : scrollYOffset,
         }}
       >
         {/* Top Header Row */}
@@ -128,6 +154,9 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
         <div className="github-overview-card">
           {/* Top Section: Heatmap Calendar */}
           <div className="github-calendar-wrap">
+            <div className="heatmap-mobile-swipe-hint" aria-hidden="true">
+              <span>← Swipe for past history</span>
+            </div>
             <div
               ref={heatmapScrollRef}
               className="heatmap-scroll-wrap"

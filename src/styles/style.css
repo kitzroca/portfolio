@@ -840,6 +840,22 @@ textarea:focus-visible {
   border-radius: 4px;
 }
 
+.heatmap-mobile-swipe-hint {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .heatmap-mobile-swipe-hint {
+    display: flex;
+    justify-content: flex-end;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    color: var(--text-muted);
+    padding: 0 2px 8px 0;
+    letter-spacing: 0.02em;
+  }
+}
+
 .github-calendar-inner {
   display: flex;
   flex-direction: column;
