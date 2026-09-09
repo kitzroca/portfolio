@@ -1,6 +1,8 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { AboutSectionData } from '../types/portfolio';
 import { GithubActivity } from './GithubActivity';
+import { fadeInUp, staggerContainer, cardVariants, VIEWPORT_ONCE } from '../utils/motion';
 
 interface AboutProps {
   about: AboutSectionData;
@@ -15,40 +17,76 @@ export const About: React.FC<AboutProps> = ({ about, onNavClick }) => {
       aria-labelledby="heading-about"
     >
       {/* Header row: Icon + Numbered Title on Left, Breadcrumb Link on Right */}
-      <div className="section-header-row">
+      <motion.div
+        className="section-header-row"
+        initial="hidden"
+        whileInView="visible"
+        viewport={VIEWPORT_ONCE}
+        variants={fadeInUp(18)}
+      >
         <div className="section-title-wrap">
           <h2 className="section-title" id="heading-about">
             {about.section_header}
           </h2>
         </div>
-        <a
+        <motion.a
           href="#about"
           className="section-badge-link"
           onClick={(e) => {
             e.preventDefault();
             onNavClick('about');
           }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           {about.nav_badge}
-        </a>
-      </div>
+        </motion.a>
+      </motion.div>
 
       {/* Horizontal Rule */}
-      <div className="section-rule" aria-hidden="true" />
+      <motion.div
+        className="section-rule"
+        aria-hidden="true"
+        initial={{ scaleX: 0, opacity: 0 }}
+        whileInView={{ scaleX: 1, opacity: 1 }}
+        viewport={VIEWPORT_ONCE}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{ transformOrigin: 'left' }}
+      />
 
       {/* Two paragraphs of bio text in soft blue (#7fa8e8) */}
-      <div className="bio-wrapper">
+      <motion.div
+        className="bio-wrapper"
+        initial="hidden"
+        whileInView="visible"
+        viewport={VIEWPORT_ONCE}
+        variants={staggerContainer(0.1, 0.05)}
+      >
         {about.bio_paragraphs.map((bioP, idx) => (
-          <p key={idx} className="bio-paragraph">
+          <motion.p key={idx} className="bio-paragraph" variants={fadeInUp(16)}>
             {bioP}
-          </p>
+          </motion.p>
         ))}
-      </div>
+      </motion.div>
 
       {/* 4-Column Stat Bar (Single connected box with internal hairline dividers) */}
-      <div className="stats-bar-box" role="region" aria-label="Key Developer Metrics">
+      <motion.div
+        className="stats-bar-box"
+        role="region"
+        aria-label="Key Developer Metrics"
+        initial="hidden"
+        whileInView="visible"
+        viewport={VIEWPORT_ONCE}
+        variants={staggerContainer(0.08, 0.1)}
+      >
         {about.stats.map((stat, idx) => (
-          <div key={idx} className="stat-column">
+          <motion.div
+            key={idx}
+            className="stat-column"
+            variants={cardVariants}
+            whileHover={{ y: -2 }}
+            transition={{ duration: 0.2 }}
+          >
             <div className="stat-value-row">
               <span className="stat-value">{stat.value}</span>
               {stat.has_link && (
@@ -66,9 +104,9 @@ export const About: React.FC<AboutProps> = ({ about, onNavClick }) => {
               )}
             </div>
             <div className="stat-label">{stat.label}</div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Activity Pulse Panel */}
       <GithubActivity activity={about.activity} />

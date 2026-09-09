@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { ContactSectionData } from '../types/portfolio';
+import { fadeInUp, staggerContainer, cardVariants, VIEWPORT_ONCE, buttonTap } from '../utils/motion';
 
 interface ContactProps {
   contact: ContactSectionData;
@@ -41,35 +43,67 @@ export const Contact: React.FC<ContactProps> = ({ contact, onNavClick }) => {
       id={contact.section_id}
       aria-labelledby="heading-contact"
     >
-      <div className="section-header-row">
+      <motion.div
+        className="section-header-row"
+        initial="hidden"
+        whileInView="visible"
+        viewport={VIEWPORT_ONCE}
+        variants={fadeInUp(18)}
+      >
         <div className="section-title-wrap">
           <h2 className="section-title" id="heading-contact">
             {contact.section_header}
           </h2>
         </div>
-        <a
+        <motion.a
           href="#contact"
           className="section-badge-link"
           onClick={(e) => {
             e.preventDefault();
             onNavClick('contact');
           }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           {contact.nav_badge}
-        </a>
-      </div>
+        </motion.a>
+      </motion.div>
 
-      <div className="section-rule" aria-hidden="true" />
+      <motion.div
+        className="section-rule"
+        aria-hidden="true"
+        initial={{ scaleX: 0, opacity: 0 }}
+        whileInView={{ scaleX: 1, opacity: 1 }}
+        viewport={VIEWPORT_ONCE}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{ transformOrigin: 'left' }}
+      />
 
-      <div className="contact-card">
-        <h3 className="contact-headline">{contact.headline}</h3>
-        <p className="contact-subtitle">{contact.subtitle}</p>
+      <motion.div
+        className="contact-card"
+        initial="hidden"
+        whileInView="visible"
+        viewport={VIEWPORT_ONCE}
+        variants={fadeInUp(22)}
+      >
+        <motion.h3 className="contact-headline" variants={fadeInUp(14)}>
+          {contact.headline}
+        </motion.h3>
+        <motion.p className="contact-subtitle" variants={fadeInUp(12)}>
+          {contact.subtitle}
+        </motion.p>
 
-        <div className="contact-channels-grid">
+        <motion.div
+          className="contact-channels-grid"
+          variants={staggerContainer(0.06, 0.08)}
+        >
           {contact.channels.map((ch, idx) => (
-            <div
+            <motion.div
               key={idx}
               className="channel-box"
+              variants={cardVariants}
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}
             >
               <span className="channel-label">{ch.label}</span>
               {ch.type === 'email' ? (
@@ -79,18 +113,20 @@ export const Contact: React.FC<ContactProps> = ({ contact, onNavClick }) => {
               ) : (
                 <span className="channel-val">{ch.val}</span>
               )}
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         <div className="contact-cta-row">
-          <button
+          <motion.button
             type="button"
             className="btn-copy-email"
             id="copy-email-btn"
             data-email={contact.email}
             aria-label="Copy email address to clipboard"
             onClick={handleCopyEmail}
+            whileHover={{ scale: 1.02 }}
+            whileTap={buttonTap}
             style={
               isCopied
                 ? {
@@ -125,19 +161,21 @@ export const Contact: React.FC<ContactProps> = ({ contact, onNavClick }) => {
                 <span>{contact.email}</span>
               </>
             )}
-          </button>
+          </motion.button>
 
-          <a
+          <motion.a
             href={`mailto:${contact.email}`}
             className="btn-contact-primary"
+            whileHover={{ y: -2, scale: 1.02 }}
+            whileTap={buttonTap}
           >
             <span>Send Message</span>
             <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
             </svg>
-          </a>
+          </motion.a>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };

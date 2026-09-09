@@ -1,5 +1,7 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { UserProfile, NavItem, SocialLink } from '../types/portfolio';
+import { fadeInUp, scaleIn, staggerContainer, buttonTap, cardHover } from '../utils/motion';
 
 interface SidebarProps {
   user: UserProfile;
@@ -49,10 +51,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="sidebar" aria-label="Personal Information and Navigation">
       <div className="sidebar-scrollable">
         {/* Profile Header */}
-        <header className="profile-header">
+        <motion.header
+          className="profile-header"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer(0.08, 0.05)}
+        >
           {/* Avatar + Status/Location row */}
           <div className="profile-top-row">
-            <div className="avatar-wrapper">
+            <motion.div className="avatar-wrapper" variants={scaleIn(0)}>
               <img
                 src={user.avatar}
                 alt={`${user.name} avatar`}
@@ -61,9 +68,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 height="76"
                 loading="eager"
               />
-            </div>
+            </motion.div>
 
-            <div className="profile-side-info">
+            <motion.div className="profile-side-info" variants={fadeInUp(14, 0.05)}>
               <span className="hire-badge">
                 <span className="green-dot" aria-hidden="true" />
                 {user.status}
@@ -71,25 +78,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="location-text">
                 <span>{user.location}</span>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Name & Role */}
-          <h1 className="user-name">{user.name}</h1>
-          <div className="user-role">{user.role}</div>
+          <motion.h1 className="user-name" variants={fadeInUp(16, 0.1)}>
+            {user.name}
+          </motion.h1>
+          <motion.div className="user-role" variants={fadeInUp(12, 0.15)}>
+            {user.role}
+          </motion.div>
 
           {/* Summary Tagline */}
-          <p className="user-tagline">{user.tagline}</p>
-        </header>
+          <motion.p className="user-tagline" variants={fadeInUp(12, 0.2)}>
+            {user.tagline}
+          </motion.p>
+        </motion.header>
 
         {/* Vertical Nav List with Numbered Bracket Labels */}
         <nav className="sidebar-nav" aria-label="Section Navigation">
-          <ul className="nav-list">
+          <motion.ul
+            className="nav-list"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer(0.05, 0.25)}
+          >
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
-                <li key={item.id} className="nav-item">
-                  <a
+                <motion.li key={item.id} className="nav-item" variants={fadeInUp(10)}>
+                  <motion.a
                     href={`#${item.id}`}
                     className={`nav-link ${isActive ? 'active' : ''}`}
                     id={`nav-link-${item.id}`}
@@ -98,39 +116,48 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       e.preventDefault();
                       onNavClick(item.id);
                     }}
+                    whileHover={{ x: 4 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
                   >
                     <span className="nav-label">{item.bracket}</span>
-                  </a>
-                </li>
+                  </motion.a>
+                </motion.li>
               );
             })}
-          </ul>
+          </motion.ul>
         </nav>
       </div>
 
       {/* Sidebar Footer (Socials, Solid White Resume Button, Theme Toggle, Copyright) */}
-      <footer className="sidebar-footer">
+      <motion.footer
+        className="sidebar-footer"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div className="footer-actions-row">
           {/* Social Icons Group */}
           <div className="social-links-group" aria-label="Social Profiles">
             {socialLinks.map((social) => (
-              <a
+              <motion.a
                 key={social.name}
                 href={social.url}
                 className="icon-btn"
                 target={social.url.startsWith('mailto:') ? undefined : '_blank'}
                 rel={social.url.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
                 aria-label={social.aria}
+                whileHover={cardHover}
+                whileTap={buttonTap}
               >
                 {renderSocialIcon(social.icon)}
-              </a>
+              </motion.a>
             ))}
           </div>
 
           {/* Right Actions: Resume Button & Theme Toggle */}
           <div className="footer-right-actions">
             {/* Solid White Resume ↗ Button */}
-            <a
+            <motion.a
               href={user.resume_link}
               target={user.resume_link.startsWith('#') ? undefined : '_blank'}
               rel={user.resume_link.startsWith('#') ? undefined : 'noopener noreferrer'}
@@ -141,6 +168,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onNavClick(user.resume_link.slice(1));
                 }
               }}
+              whileHover={{ y: -2, scale: 1.02 }}
+              whileTap={buttonTap}
             >
               <span>Resume</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -153,15 +182,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   fill="none"
                 />
               </svg>
-            </a>
+            </motion.a>
 
             {/* Theme Toggle Button */}
-            <button
+            <motion.button
               type="button"
               className="icon-btn theme-toggle-btn"
               id="theme-toggle"
               aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
               onClick={toggleTheme}
+              whileHover={cardHover}
+              whileTap={buttonTap}
             >
               <svg className="theme-icon-moon" viewBox="0 0 24 24">
                 <path d="M12.3 2a10 10 0 0 0-.19 14 10 10 0 0 0 11.64 3.7A10 10 0 1 1 12.3 2z" />
@@ -169,13 +200,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <svg className="theme-icon-sun" viewBox="0 0 24 24">
                 <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z" />
               </svg>
-            </button>
+            </motion.button>
           </div>
         </div>
 
         {/* Copyright Notice */}
         <div className="copyright-line">{user.copyright}</div>
-      </footer>
+      </motion.footer>
     </aside>
   );
 };

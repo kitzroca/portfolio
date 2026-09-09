@@ -1,13 +1,18 @@
 import React from 'react';
-import { useScrollProgress } from '../hooks/useScrollProgress';
+import { motion, useScroll, useSpring } from 'framer-motion';
 
 export const ScrollProgress: React.FC = () => {
-  const progress = useScrollProgress();
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 30,
+    restDelta: 0.001,
+  });
 
   return (
-    <div
+    <motion.div
       className="top-accent-bar"
-      style={{ width: `${progress}%` }}
+      style={{ scaleX }}
       aria-hidden="true"
     />
   );

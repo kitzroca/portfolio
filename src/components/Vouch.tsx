@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { VouchSectionData, VouchItem } from '../types/portfolio';
 import {
   fetchLiveVouches,
   submitLiveVouch,
   deleteLiveVouch,
 } from '../services/vouchService';
+import { fadeInUp, staggerContainer, cardVariants, VIEWPORT_ONCE, buttonTap } from '../utils/motion';
 
 interface VouchProps {
   vouch: VouchSectionData;
@@ -98,11 +100,11 @@ export const Vouch: React.FC<VouchProps> = ({ vouch, onNavClick }) => {
       setTimeout(() => setToastMessage(null), 3500);
     } catch (err: any) {
       console.error('Failed to delete vouch:', err);
-      alert('Failed to remove endorsement. Please try again.');
+      setToastMessage('Could not delete vouch. Please try again.');
+      setTimeout(() => setToastMessage(null), 3500);
     }
   };
 
-  // Only show the 6 newest vouches by default; view all button expands
   const visibleItems = showAll ? items : items.slice(0, 6);
 
   return (
@@ -111,7 +113,13 @@ export const Vouch: React.FC<VouchProps> = ({ vouch, onNavClick }) => {
       id={vouch.section_id}
       aria-labelledby="heading-vouch"
     >
-      <div className="section-header-row">
+      <motion.div
+        className="section-header-row"
+        initial="hidden"
+        whileInView="visible"
+        viewport={VIEWPORT_ONCE}
+        variants={fadeInUp(18)}
+      >
         <div className="section-title-wrap">
           <h2 className="section-title" id="heading-vouch">
             {vouch.section_header}
@@ -119,57 +127,93 @@ export const Vouch: React.FC<VouchProps> = ({ vouch, onNavClick }) => {
         </div>
 
         <div className="vouch-header-actions">
-          <button
+          <motion.button
             type="button"
             className="btn-vouch-add"
             onClick={handleOpenModal}
             aria-label="Leave a peer endorsement"
+            whileHover={{ scale: 1.03 }}
+            whileTap={buttonTap}
           >
             <span className="vouch-add-plus">+</span> VOUCH KITZ
-          </button>
-          <a
+          </motion.button>
+          <motion.a
             href="#vouch"
             className="section-badge-link"
             onClick={(e) => {
               e.preventDefault();
               onNavClick('vouch');
             }}
-          > VOUCH [{items.length}]
-          </a>
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            VOUCH [{items.length}]
+          </motion.a>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="section-rule" aria-hidden="true" />
+      <motion.div
+        className="section-rule"
+        aria-hidden="true"
+        initial={{ scaleX: 0, opacity: 0 }}
+        whileInView={{ scaleX: 1, opacity: 1 }}
+        viewport={VIEWPORT_ONCE}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{ transformOrigin: 'left' }}
+      />
 
       {/* Toast Notification */}
-      {toastMessage && (
-        <div className="vouch-toast" role="status">
-          <span className="vouch-toast-dot" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            className="vouch-toast"
+            role="status"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            <span className="vouch-toast-dot" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 3-Column Vouch Grid (Max 6 shown by default) */}
       {items.length > 0 ? (
         <>
-          <div className="vouch-grid">
+          <motion.div
+            className="vouch-grid"
+            initial="hidden"
+            whileInView="visible"
+            viewport={VIEWPORT_ONCE}
+            variants={staggerContainer(0.08, 0.05)}
+          >
             {visibleItems.map((item) => (
-              <article key={item.id} className="vouch-card">
+              <motion.article
+                key={item.id}
+                className="vouch-card"
+                variants={cardVariants}
+                whileHover={{ y: -3 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+              >
                 <div className="vouch-card-top-row">
                   <span className="vouch-quote-mark" aria-hidden="true">
                     “
                   </span>
-                  <button
+                  <motion.button
                     type="button"
                     className="vouch-delete-btn"
                     title="Delete endorsement"
                     aria-label={`Delete endorsement from ${item.name}`}
                     onClick={() => handleDelete(item.id, item.name)}
+                    whileHover={{ scale: 1.2, color: '#ef4444' }}
+                    whileTap={{ scale: 0.9 }}
                   >
                     <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
                       <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                     </svg>
-                  </button>
+                  </motion.button>
                 </div>
 
                 <p className="vouch-quote">{item.quote}</p>
@@ -185,185 +229,207 @@ export const Vouch: React.FC<VouchProps> = ({ vouch, onNavClick }) => {
                     </span>
                   </div>
                 </div>
-              </article>
+              </motion.article>
             ))}
-          </div>
+          </motion.div>
 
           {/* View All / Show Less Button if more than 6 vouches exist */}
           {items.length > 6 && (
             <div className="vouch-view-all-row">
-              <button
+              <motion.button
                 type="button"
                 className="btn-vouch-view-all"
                 onClick={() => setShowAll((prev) => !prev)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={buttonTap}
               >
                 {showAll ? (
                   <>Show Less ↑</>
                 ) : (
                   <>View All Endorsements ({items.length}) ↓</>
                 )}
-              </button>
+              </motion.button>
             </div>
           )}
         </>
       ) : (
-        <div className="vouch-empty-card">
+        <motion.div
+          className="vouch-empty-card"
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT_ONCE}
+          variants={fadeInUp(20)}
+        >
           <p className="vouch-empty-title">No Vouches Yet</p>
           <p className="vouch-empty-desc">
             Worked with Kitz? Leave a vouch!
           </p>
-          <button
+          <motion.button
             type="button"
             className="btn-vouch-empty-cta"
             onClick={handleOpenModal}
+            whileHover={{ scale: 1.03 }}
+            whileTap={buttonTap}
           >
             Be the First to Vouch ↗
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       )}
 
       {/* Submission Modal */}
-      {isModalOpen && (
-        <div
-          className="vouch-modal-backdrop"
-          onClick={handleCloseModal}
-          role="presentation"
-        >
-          <div
-            className="vouch-modal-container"
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="vouch-modal-title"
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            className="vouch-modal-backdrop"
+            onClick={handleCloseModal}
+            role="presentation"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
           >
-            <div className="vouch-modal-header">
-              <div className="vouch-modal-header-text">
-                <span className="vouch-modal-badge">[ LIVE CLOUD VOUCH ]</span>
-                <h3 className="vouch-modal-title" id="vouch-modal-title">
-                  Vouch for Kitz B. Roca
-                </h3>
-                <p className="vouch-modal-subtitle">
-                  Share your genuine feedback, collaboration experience, or technical vouch. It will be posted directly to the portfolio.
-                </p>
-              </div>
-              <button
-                type="button"
-                className="vouch-modal-close-btn"
-                onClick={handleCloseModal}
-                aria-label="Close modal"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="vouch-modal-form">
-              {formError && (
-                <div className="vouch-form-error" role="alert">
-                  {formError}
+            <motion.div
+              className="vouch-modal-container"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="vouch-modal-title"
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="vouch-modal-header">
+                <div className="vouch-modal-header-text">
+                  <span className="vouch-modal-badge">[ LIVE CLOUD VOUCH ]</span>
+                  <h3 className="vouch-modal-title" id="vouch-modal-title">
+                    Vouch for Kitz B. Roca
+                  </h3>
+                  <p className="vouch-modal-subtitle">
+                    Share your genuine feedback, collaboration experience, or technical vouch. It will be posted directly to the portfolio.
+                  </p>
                 </div>
-              )}
-
-              <div className="vouch-form-field">
-                <label htmlFor="vouch-name" className="vouch-form-label">
-                  Your Full Name <span className="req">*</span>
-                </label>
-                <input
-                  id="vouch-name"
-                  type="text"
-                  required
-                  placeholder="e.g. Alex Rivera"
-                  className="vouch-form-input"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  maxLength={70}
-                />
+                <button
+                  type="button"
+                  className="vouch-modal-close-btn"
+                  onClick={handleCloseModal}
+                  aria-label="Close modal"
+                >
+                  ✕
+                </button>
               </div>
 
-              <div className="vouch-form-row">
+              <form onSubmit={handleSubmit} className="vouch-modal-form">
+                {formError && (
+                  <div className="vouch-form-error" role="alert">
+                    {formError}
+                  </div>
+                )}
+
                 <div className="vouch-form-field">
-                  <label htmlFor="vouch-role" className="vouch-form-label">
-                    Your Role / Title
+                  <label htmlFor="vouch-name" className="vouch-form-label">
+                    Your Full Name <span className="req">*</span>
                   </label>
                   <input
-                    id="vouch-role"
+                    id="vouch-name"
                     type="text"
-                    placeholder="e.g. Full-Stack Developer"
+                    required
+                    placeholder="e.g. Alex Rivera"
                     className="vouch-form-input"
-                    value={formData.role}
+                    value={formData.name}
                     onChange={(e) =>
-                      setFormData({ ...formData, role: e.target.value })
+                      setFormData({ ...formData, name: e.target.value })
                     }
                     maxLength={70}
                   />
                 </div>
 
+                <div className="vouch-form-row">
+                  <div className="vouch-form-field">
+                    <label htmlFor="vouch-role" className="vouch-form-label">
+                      Your Role / Title
+                    </label>
+                    <input
+                      id="vouch-role"
+                      type="text"
+                      placeholder="e.g. Full-Stack Developer"
+                      className="vouch-form-input"
+                      value={formData.role}
+                      onChange={(e) =>
+                        setFormData({ ...formData, role: e.target.value })
+                      }
+                      maxLength={70}
+                    />
+                  </div>
+
+                  <div className="vouch-form-field">
+                    <label htmlFor="vouch-org" className="vouch-form-label">
+                      Project or Affiliation
+                    </label>
+                    <input
+                      id="vouch-org"
+                      type="text"
+                      placeholder="e.g. OFF GPT Collaborator / EVSU"
+                      className="vouch-form-input"
+                      value={formData.company_or_institution}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          company_or_institution: e.target.value,
+                        })
+                      }
+                      maxLength={80}
+                    />
+                  </div>
+                </div>
+
                 <div className="vouch-form-field">
-                  <label htmlFor="vouch-org" className="vouch-form-label">
-                    Project or Affiliation
-                  </label>
-                  <input
-                    id="vouch-org"
-                    type="text"
-                    placeholder="e.g. OFF GPT Collaborator / EVSU"
-                    className="vouch-form-input"
-                    value={formData.company_or_institution}
+                  <div className="vouch-label-counter-row">
+                    <label htmlFor="vouch-quote" className="vouch-form-label">
+                      Endorsement / Recommendation <span className="req">*</span>
+                    </label>
+                    <span className="vouch-char-counter">
+                      {formData.quote.length} / 500
+                    </span>
+                  </div>
+                  <textarea
+                    id="vouch-quote"
+                    required
+                    rows={4}
+                    placeholder="How was working with Kitz? Share his strengths, work ethic, or technical problem solving..."
+                    className="vouch-form-textarea"
+                    value={formData.quote}
                     onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        company_or_institution: e.target.value,
-                      })
+                      setFormData({ ...formData, quote: e.target.value })
                     }
-                    maxLength={80}
+                    maxLength={500}
                   />
                 </div>
-              </div>
 
-              <div className="vouch-form-field">
-                <div className="vouch-label-counter-row">
-                  <label htmlFor="vouch-quote" className="vouch-form-label">
-                    Endorsement / Recommendation <span className="req">*</span>
-                  </label>
-                  <span className="vouch-char-counter">
-                    {formData.quote.length} / 500
-                  </span>
+                <div className="vouch-modal-actions">
+                  <button
+                    type="button"
+                    className="btn-vouch-cancel"
+                    onClick={handleCloseModal}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </button>
+                  <motion.button
+                    type="submit"
+                    className="btn-vouch-submit"
+                    disabled={isSubmitting}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={buttonTap}
+                  >
+                    {isSubmitting ? 'Posting Vouch...' : 'Publish Vouch ↗'}
+                  </motion.button>
                 </div>
-                <textarea
-                  id="vouch-quote"
-                  required
-                  rows={4}
-                  placeholder="How was working with Kitz? Share his strengths, work ethic, or technical problem solving..."
-                  className="vouch-form-textarea"
-                  value={formData.quote}
-                  onChange={(e) =>
-                    setFormData({ ...formData, quote: e.target.value })
-                  }
-                  maxLength={500}
-                />
-              </div>
-
-              <div className="vouch-modal-actions">
-                <button
-                  type="button"
-                  className="btn-vouch-cancel"
-                  onClick={handleCloseModal}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-vouch-submit"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Posting Vouch...' : 'Publish Vouch ↗'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

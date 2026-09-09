@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { ActivityData } from '../types/portfolio';
+import { fadeInUp, VIEWPORT_ONCE } from '../utils/motion';
 
 interface GithubActivityProps {
   activity: ActivityData;
@@ -31,30 +33,39 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
   }, [totalWeeks]);
 
   return (
-    <div className="activity-pulse-panel">
+    <motion.div
+      className="activity-pulse-panel"
+      initial="hidden"
+      whileInView="visible"
+      viewport={VIEWPORT_ONCE}
+      variants={fadeInUp(22)}
+    >
       {/* Top Header Row */}
       <div className="activity-panel-header">
         <div className="activity-header-left">
           <span>{activity.title}</span>
-          <a
+          <motion.a
             href={activity.handle_url}
             className="activity-commits-badge"
             target="_blank"
             rel="noopener noreferrer"
             title="View profile on GitHub"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
           >
             {activity.commits_count ? `${activity.commits_count} Commits` : 'Live Commits'}
-          </a>
+          </motion.a>
         </div>
-        <a
+        <motion.a
           href={activity.handle_url}
           className="activity-handle-link"
           target="_blank"
           rel="noopener noreferrer"
+          whileHover={{ x: 2 }}
         >
           <span>{activity.handle}</span>
           <span aria-hidden="true">↗</span>
-        </a>
+        </motion.a>
       </div>
 
       {/* GitHub Official Activity Card */}
@@ -199,8 +210,8 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
                       strokeWidth="2"
                     />
 
-                    {/* Active Left Arm (100% Commits Highlight Bar) */}
-                    <line
+                    {/* Active Left Arm (100% Commits Highlight Bar) with draw-in motion */}
+                    <motion.line
                       x1="120"
                       y1="80"
                       x2="38"
@@ -208,15 +219,27 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
                       stroke="#3fb950"
                       strokeWidth="4"
                       strokeLinecap="round"
+                      initial={{ pathLength: 0 }}
+                      whileInView={{ pathLength: 1 }}
+                      viewport={VIEWPORT_ONCE}
+                      transition={{ duration: 0.85, ease: 'easeOut', delay: 0.2 }}
                     />
 
-                    {/* Soft Neon Glow around Dot */}
-                    <circle
+                    {/* Soft Neon Glow around Dot with subtle breathe animation */}
+                    <motion.circle
                       cx="38"
                       cy="80"
                       r="7"
                       fill="#2ea043"
-                      opacity="0.4"
+                      animate={{
+                        scale: [1, 1.25, 1],
+                        opacity: [0.35, 0.65, 0.35],
+                      }}
+                      transition={{
+                        duration: 2.8,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                      }}
                     />
 
                     {/* Dot on Commits end (White filled, bright green stroke) */}
@@ -241,6 +264,6 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

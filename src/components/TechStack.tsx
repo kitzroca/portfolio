@@ -1,5 +1,7 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { StackSectionData, StackSkillItem } from '../types/portfolio';
+import { fadeInUp, staggerContainer, cardVariants, VIEWPORT_ONCE } from '../utils/motion';
 
 interface TechStackProps {
   stack: StackSectionData;
@@ -13,34 +15,64 @@ export const TechStack: React.FC<TechStackProps> = ({ stack, onNavClick }) => {
       id={stack.section_id}
       aria-labelledby="heading-stack"
     >
-      <div className="section-header-row">
+      <motion.div
+        className="section-header-row"
+        initial="hidden"
+        whileInView="visible"
+        viewport={VIEWPORT_ONCE}
+        variants={fadeInUp(18)}
+      >
         <div className="section-title-wrap">
           <h2 className="section-title" id="heading-stack">
             {stack.section_header}
           </h2>
         </div>
-        <a
+        <motion.a
           href="#stack"
           className="section-badge-link"
           onClick={(e) => {
             e.preventDefault();
             onNavClick('stack');
           }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           {stack.nav_badge}
-        </a>
-      </div>
+        </motion.a>
+      </motion.div>
 
-      <div className="section-rule" aria-hidden="true" />
+      <motion.div
+        className="section-rule"
+        aria-hidden="true"
+        initial={{ scaleX: 0, opacity: 0 }}
+        whileInView={{ scaleX: 1, opacity: 1 }}
+        viewport={VIEWPORT_ONCE}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{ transformOrigin: 'left' }}
+      />
 
-      <div className="stack-grid">
+      <motion.div
+        className="stack-grid"
+        initial="hidden"
+        whileInView="visible"
+        viewport={VIEWPORT_ONCE}
+        variants={staggerContainer(0.12, 0.05)}
+      >
         {stack.categories.map((cat, idx) => (
-          <div key={idx} className="stack-category-card">
+          <motion.div
+            key={idx}
+            className="stack-category-card"
+            variants={cardVariants}
+          >
             <div className="stack-category-header">
               <h3 className="stack-category-title">{cat.title}</h3>
             </div>
 
-            <div className="tech-items-grid" role="list">
+            <motion.div
+              className="tech-items-grid"
+              role="list"
+              variants={staggerContainer(0.04, 0.05)}
+            >
               {cat.skills.map((skill, sIdx) => {
                 const isObj = typeof skill === 'object' && skill !== null;
                 const item: StackSkillItem = isObj
@@ -48,11 +80,14 @@ export const TechStack: React.FC<TechStackProps> = ({ stack, onNavClick }) => {
                   : { name: skill as string, icon: `/icons/${(skill as string).toLowerCase().replace(/[^a-z0-9]/g, '')}.svg` };
 
                 return (
-                  <div
+                  <motion.div
                     key={sIdx}
                     className="tech-card"
                     role="listitem"
                     title={item.description ? `${item.name}: ${item.description}` : item.name}
+                    variants={cardVariants}
+                    whileHover={{ y: -3, scale: 1.01 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
                   >
                     <div className="tech-icon-container" aria-hidden="true">
                       <img
@@ -63,7 +98,6 @@ export const TechStack: React.FC<TechStackProps> = ({ stack, onNavClick }) => {
                         width="32"
                         height="32"
                         onError={(e) => {
-                          // Clean fallback in case of loading anomaly
                           const target = e.currentTarget;
                           target.style.display = 'none';
                         }}
@@ -75,13 +109,13 @@ export const TechStack: React.FC<TechStackProps> = ({ stack, onNavClick }) => {
                         <p className="tech-desc">{item.description}</p>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 };
