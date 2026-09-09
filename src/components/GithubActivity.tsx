@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ActivityData } from '../types/portfolio';
 import { VIEWPORT_ONCE } from '../utils/motion';
@@ -10,7 +10,21 @@ interface GithubActivityProps {
 
 export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const heatmapScrollRef = useRef<HTMLDivElement>(null);
   const totalWeeks = activity.matrix[0]?.length || 53;
+
+  // Auto-scroll heatmap to the right (most recent weeks) so green commit activity is visible on mobile
+  useEffect(() => {
+    const scrollToLatest = () => {
+      if (heatmapScrollRef.current) {
+        heatmapScrollRef.current.scrollLeft = heatmapScrollRef.current.scrollWidth;
+      }
+    };
+
+    scrollToLatest();
+    const timer = setTimeout(scrollToLatest, 150);
+    return () => clearTimeout(timer);
+  }, [activity.matrix, activity.commits_count]);
 
   // Scroll-linked motion hooks - called unconditionally on every render
   const { scrollYProgress } = useScroll({
@@ -114,7 +128,12 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
         <div className="github-overview-card">
           {/* Top Section: Heatmap Calendar */}
           <div className="github-calendar-wrap">
-            <div className="heatmap-scroll-wrap" tabIndex={0} aria-label="GitHub contribution activity grid">
+            <div
+              ref={heatmapScrollRef}
+              className="heatmap-scroll-wrap"
+              tabIndex={0}
+              aria-label="GitHub contribution activity grid"
+            >
               <div className="github-calendar-inner">
                 {/* Month Labels Row */}
                 <div

@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 
 export const ActivityPulseSkeleton: React.FC = () => {
   const totalWeeks = 53;
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+    }
+  }, []);
 
   return (
     <div style={{ width: '100%' }} aria-hidden="true">
@@ -28,7 +35,7 @@ export const ActivityPulseSkeleton: React.FC = () => {
         <div className="github-overview-card">
           {/* Top Section: Heatmap Calendar */}
           <div className="github-calendar-wrap">
-            <div className="heatmap-scroll-wrap" tabIndex={-1}>
+            <div ref={scrollRef} className="heatmap-scroll-wrap" tabIndex={-1}>
               <div className="github-calendar-inner">
                 {/* Month Labels Row */}
                 <div

@@ -820,8 +820,24 @@ textarea:focus-visible {
   box-sizing: border-box;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-active) transparent;
+  scroll-behavior: smooth;
+}
+
+.heatmap-scroll-wrap::-webkit-scrollbar {
+  height: 4px;
+}
+
+.heatmap-scroll-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.heatmap-scroll-wrap::-webkit-scrollbar-thumb {
+  background: var(--border-active);
+  border-radius: 4px;
 }
 
 .github-calendar-inner {
@@ -1039,12 +1055,19 @@ textarea:focus-visible {
 @media (max-width: 720px) {
   .github-overview-bottom {
     grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 16px;
+    gap: 8px;
+    padding: 14px 12px;
+    min-height: auto;
   }
 
   .github-overview-vdivider {
     display: none;
+  }
+
+  .github-overview-left {
+    padding: 6px 0 2px 0;
+    height: auto;
+    gap: 8px;
   }
 }
 
