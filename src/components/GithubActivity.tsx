@@ -12,20 +12,35 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const heatmapScrollRef = useRef<HTMLDivElement>(null);
   const totalWeeks = activity.matrix[0]?.length || 53;
-  const [isMobile, setIsMobile] = React.useState<boolean>(false);
 
-  // Detect mobile viewport so we don't apply scale/y transforms that reset horizontal scroll in WebKit
+  // Responsive device & view detection
+  const [isMobile, setIsMobile] = React.useState<boolean>(() => {
+    return typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+  });
+
+  // On mobile (< 768px), default to 6 Months so recent active commits are 100% visible without scrolling.
+  // On desktop, default to Full Year (53 weeks).
+  const [viewRange, setViewRange] = React.useState<'6m' | '1y'>(() => {
+    return typeof window !== 'undefined' && window.innerWidth >= 768 ? '1y' : '6m';
+  });
+
+  const isResponsive = viewRange === '6m';
+  const visibleWeeks = isResponsive ? 26 : totalWeeks;
+  const startCol = totalWeeks - visibleWeeks;
+
+  // Handle window resizing
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
     };
-    checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Auto-scroll heatmap to the right (most recent weeks) so green commit activity is visible on mobile
+  // When viewing full year, scroll heatmap to the right so recent commits are visible
   useEffect(() => {
+    if (viewRange !== '1y') return;
     const el = heatmapScrollRef.current;
     if (!el) return;
 
@@ -34,23 +49,24 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
         const maxScroll = el.scrollWidth - el.clientWidth;
         if (maxScroll > 0) {
           el.scrollLeft = maxScroll;
+          try {
+            el.scrollTo({ left: maxScroll, behavior: 'auto' });
+          } catch {}
         }
       }
     };
 
     scrollToEnd();
     const r1 = requestAnimationFrame(scrollToEnd);
-    const t1 = setTimeout(scrollToEnd, 100);
-    const t2 = setTimeout(scrollToEnd, 350);
-    const t3 = setTimeout(scrollToEnd, 750);
+    const t1 = setTimeout(scrollToEnd, 60);
+    const t2 = setTimeout(scrollToEnd, 250);
 
     return () => {
       cancelAnimationFrame(r1);
       clearTimeout(t1);
       clearTimeout(t2);
-      clearTimeout(t3);
     };
-  }, [activity.matrix, activity.commits_count, isMobile]);
+  }, [viewRange, activity.matrix]);
 
   // Scroll-linked motion hooks - called unconditionally on every render
   const { scrollYProgress } = useScroll({
@@ -62,7 +78,7 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
   const scrollOpacity = useTransform(scrollYProgress, [0, 0.6], [0.4, 1]);
   const scrollYOffset = useTransform(scrollYProgress, [0, 1], [18, 0]);
 
-  // Month labels matching GitHub's 53-week timeline - called unconditionally on every render
+  // Month labels matching GitHub's timeline - called unconditionally on every render
   const monthLabels = useMemo(() => {
     const today = new Date();
     const dayOfWeek = today.getUTCDay();
@@ -77,12 +93,28 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
       d.setUTCDate(startDate.getUTCDate() + w * 7);
       const m = d.getUTCMonth();
       if (m !== lastM && w < totalWeeks - 1) {
-        labels.push({ col: w, label: d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }) });
+        if (w >= startCol) {
+          labels.push({
+            col: w - startCol,
+            label: d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }),
+          });
+        }
         lastM = m;
       }
     }
+
+    // If first visible label starts after column 2, prepend the initial month
+    if (labels.length > 0 && labels[0].col > 2) {
+      const firstDate = new Date(startDate);
+      firstDate.setUTCDate(startDate.getUTCDate() + startCol * 7);
+      labels.unshift({
+        col: 0,
+        label: firstDate.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }),
+      });
+    }
+
     return labels;
-  }, [totalWeeks]);
+  }, [totalWeeks, visibleWeeks, startCol]);
 
   // If live GitHub activity is still loading (e.g. slow connection), show structured skeleton
   if (activity.is_loading) {
@@ -154,20 +186,44 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
         <div className="github-overview-card">
           {/* Top Section: Heatmap Calendar */}
           <div className="github-calendar-wrap">
-            <div className="heatmap-mobile-swipe-hint" aria-hidden="true">
-              <span>← Swipe for past history</span>
+            <div className="calendar-controls-bar">
+              <div className="calendar-view-toggle" role="group" aria-label="Activity period">
+                <button
+                  type="button"
+                  className={`cal-toggle-btn ${viewRange === '6m' ? 'active' : ''}`}
+                  onClick={() => setViewRange('6m')}
+                  aria-pressed={viewRange === '6m'}
+                >
+                  Recent (6M)
+                </button>
+                <button
+                  type="button"
+                  className={`cal-toggle-btn ${viewRange === '1y' ? 'active' : ''}`}
+                  onClick={() => setViewRange('1y')}
+                  aria-pressed={viewRange === '1y'}
+                >
+                  Full Year (1Y)
+                </button>
+              </div>
+
+              {viewRange === '1y' && (
+                <div className="heatmap-mobile-swipe-hint" aria-hidden="true">
+                  <span>← Swipe for past history</span>
+                </div>
+              )}
             </div>
+
             <div
               ref={heatmapScrollRef}
-              className="heatmap-scroll-wrap"
+              className={`heatmap-scroll-wrap ${isResponsive ? 'is-responsive' : ''}`}
               tabIndex={0}
               aria-label="GitHub contribution activity grid"
             >
-              <div className="github-calendar-inner">
+              <div className={`github-calendar-inner ${isResponsive ? 'is-responsive' : ''}`}>
                 {/* Month Labels Row */}
                 <div
                   className="github-month-row"
-                  style={{ '--grid-cols': totalWeeks } as React.CSSProperties}
+                  style={{ '--grid-cols': visibleWeeks } as React.CSSProperties}
                 >
                   <div className="day-label-spacer" aria-hidden="true" />
                   <div className="months-track">
@@ -198,27 +254,30 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
                     <span className="day-label"></span>
                   </div>
 
-                  {/* 53 Columns x 7 Rows Grid (100% Real Live GitHub Data) */}
+                  {/* Grid Columns x 7 Rows (100% Real Live GitHub Data) */}
                   <div
                     className="github-contribution-grid"
                     role="grid"
-                    style={{ '--grid-cols': totalWeeks } as React.CSSProperties}
+                    style={{ '--grid-cols': visibleWeeks } as React.CSSProperties}
                   >
-                    {Array.from({ length: totalWeeks }).map((_, colIndex) => (
-                      <div key={colIndex} className="github-week-column" role="row">
-                        {Array.from({ length: 7 }).map((_, rowIndex) => {
-                          const lvl = activity.matrix[rowIndex]?.[colIndex] || 0;
-                          return (
-                            <div
-                              key={`${rowIndex}-${colIndex}`}
-                              className={`gh-heat-cell gh-lvl-${lvl}`}
-                              role="gridcell"
-                              title={`Level ${lvl} activity`}
-                            />
-                          );
-                        })}
-                      </div>
-                    ))}
+                    {Array.from({ length: visibleWeeks }).map((_, i) => {
+                      const colIndex = startCol + i;
+                      return (
+                        <div key={colIndex} className="github-week-column" role="row">
+                          {Array.from({ length: 7 }).map((_, rowIndex) => {
+                            const lvl = activity.matrix[rowIndex]?.[colIndex] || 0;
+                            return (
+                              <div
+                                key={`${rowIndex}-${colIndex}`}
+                                className={`gh-heat-cell gh-lvl-${lvl}`}
+                                role="gridcell"
+                                title={`Level ${lvl} activity`}
+                              />
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 

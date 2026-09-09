@@ -1,14 +1,17 @@
 import React, { useRef, useEffect } from 'react';
 
 export const ActivityPulseSkeleton: React.FC = () => {
-  const totalWeeks = 53;
+  const [isMobile] = React.useState<boolean>(() => {
+    return typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+  });
+  const totalWeeks = isMobile ? 26 : 53;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && !isMobile) {
       scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
     }
-  }, []);
+  }, [isMobile]);
 
   return (
     <div style={{ width: '100%' }} aria-hidden="true">
@@ -35,8 +38,16 @@ export const ActivityPulseSkeleton: React.FC = () => {
         <div className="github-overview-card">
           {/* Top Section: Heatmap Calendar */}
           <div className="github-calendar-wrap">
-            <div ref={scrollRef} className="heatmap-scroll-wrap" tabIndex={-1}>
-              <div className="github-calendar-inner">
+            <div className="calendar-controls-bar">
+              <div className="skeleton-shimmer" style={{ width: 140, height: 22, borderRadius: 6 }} />
+            </div>
+
+            <div
+              ref={scrollRef}
+              className={`heatmap-scroll-wrap ${isMobile ? 'is-responsive' : ''}`}
+              tabIndex={-1}
+            >
+              <div className={`github-calendar-inner ${isMobile ? 'is-responsive' : ''}`}>
                 {/* Month Labels Row */}
                 <div
                   className="github-month-row"
@@ -44,7 +55,7 @@ export const ActivityPulseSkeleton: React.FC = () => {
                 >
                   <div className="day-label-spacer" />
                   <div className="months-track" style={{ display: 'flex', justifyContent: 'space-between', paddingRight: 10 }}>
-                    {['Jan', 'Mar', 'May', 'Jul', 'Sep', 'Nov'].map((_, i) => (
+                    {(isMobile ? ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'] : ['Jan', 'Mar', 'May', 'Jul', 'Sep', 'Nov']).map((_, i) => (
                       <div
                         key={i}
                         className="skeleton-shimmer"
