@@ -1180,6 +1180,12 @@ textarea:focus-visible {
     height: auto;
     gap: 8px;
   }
+
+  .github-overview-right {
+    padding-left: 0 !important;
+    width: 100%;
+    margin: 0 auto;
+  }
 }
 
 /* Left: Activity overview text */
@@ -1271,6 +1277,7 @@ textarea:focus-visible {
   justify-content: center;
   width: 100%;
   max-width: 320px;
+  margin: 0 auto;
 }
 
 .crosshair-label {
@@ -1286,11 +1293,11 @@ textarea:focus-visible {
 }
 
 .crosshair-label.top {
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .crosshair-label.bottom {
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .crosshair-center {
@@ -1305,7 +1312,7 @@ textarea:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  min-width: 54px;
+  min-width: 56px;
   line-height: 1.25;
 }
 
@@ -1329,13 +1336,13 @@ textarea:focus-visible {
 }
 
 .crosshair-label.right {
-  min-width: 54px;
+  min-width: 56px;
   text-align: left;
 }
 
 .crosshair-svg-wrap {
-  width: 170px;
-  height: 110px;
+  width: 160px;
+  height: 120px;
   flex-shrink: 0;
   display: flex;
   align-items: center;

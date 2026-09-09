@@ -1,7 +1,6 @@
 import React, { useMemo, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ActivityData } from '../types/portfolio';
-import { VIEWPORT_ONCE } from '../utils/motion';
 import { ActivityPulseSkeleton } from './skeleton/ActivityPulseSkeleton';
 
 interface GithubActivityProps {
@@ -335,70 +334,76 @@ export const GithubActivity: React.FC<GithubActivityProps> = ({ activity }) => {
                   {/* SVG Crosshair Lines + Highlight Bar + Glowing Dot */}
                   <div className="crosshair-svg-wrap">
                     <svg
-                      viewBox="0 0 240 160"
+                      viewBox="0 0 240 170"
                       className="crosshair-svg"
                       preserveAspectRatio="xMidYMid meet"
                     >
-                      {/* Vertical Green Axis (Code review - Pull requests) */}
+                      {/* Full Continuous Horizontal Green Axis (Commits to Issues) */}
+                      <line
+                        x1="45"
+                        y1="85"
+                        x2="195"
+                        y2="85"
+                        stroke="#238636"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                      />
+
+                      {/* Full Continuous Vertical Green Axis (Code review to Pull requests) */}
                       <line
                         x1="120"
                         y1="10"
                         x2="120"
-                        y2="150"
-                        stroke="#2ea043"
-                        strokeWidth="2"
+                        y2="160"
+                        stroke="#238636"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
                       />
 
-                      {/* Horizontal Right Arm (Center to Issues) */}
+                      {/* Center Crosshair Intersection Node */}
+                      <circle
+                        cx="120"
+                        cy="85"
+                        r="3"
+                        fill="#238636"
+                      />
+
+                      {/* Active Left Arm: 100% Commits Highlight Bar (Solid, vivid green, fully visible) */}
                       <line
                         x1="120"
-                        y1="80"
-                        x2="210"
-                        y2="80"
-                        stroke="#2ea043"
-                        strokeWidth="2"
-                      />
-
-                      {/* Active Left Arm (100% Commits Highlight Bar) */}
-                      <motion.line
-                        x1="120"
-                        y1="80"
-                        x2="38"
-                        y2="80"
-                        stroke="#3fb950"
+                        y1="85"
+                        x2="45"
+                        y2="85"
+                        stroke="#39d353"
                         strokeWidth="4"
                         strokeLinecap="round"
-                        initial={{ pathLength: 0 }}
-                        whileInView={{ pathLength: 1 }}
-                        viewport={VIEWPORT_ONCE}
-                        transition={{ duration: 0.85, ease: 'easeOut', delay: 0.2 }}
                       />
 
-                      {/* Soft Neon Glow around Dot with subtle breathe animation */}
+                      {/* Soft Neon Glow around Commits Dot with subtle breathe animation */}
                       <motion.circle
-                        cx="38"
-                        cy="80"
-                        r="7"
-                        fill="#2ea043"
+                        cx="45"
+                        cy="85"
+                        r="8"
+                        fill="#39d353"
                         animate={{
                           scale: [1, 1.25, 1],
-                          opacity: [0.35, 0.65, 0.35],
+                          opacity: [0.3, 0.6, 0.3],
                         }}
                         transition={{
-                          duration: 2.8,
+                          duration: 2.5,
                           repeat: Infinity,
                           ease: 'easeInOut',
                         }}
                       />
 
-                      {/* Dot on Commits end (White filled, bright green stroke) */}
+                      {/* Dot on Commits end (White core, bright green border) */}
                       <circle
-                        cx="38"
-                        cy="80"
-                        r="4"
+                        cx="45"
+                        cy="85"
+                        r="4.5"
                         fill="#ffffff"
-                        stroke="#3fb950"
-                        strokeWidth="2"
+                        stroke="#39d353"
+                        strokeWidth="2.5"
                       />
                     </svg>
                   </div>
