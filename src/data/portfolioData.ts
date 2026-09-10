@@ -3,7 +3,7 @@ import { PortfolioData } from '../types/portfolio';
 export const defaultMatrix: number[][] = Array.from({ length: 7 }, () => Array(53).fill(0));
 
 export const initialPortfolioData: PortfolioData = {
-  page_title: 'Kitz - Vibe Coder Portfolio',
+  page_title: 'Kitz - The Vibe Coder Portfolio',
   meta_description:
     'Personal portfolio of Kitz B. Roca, a Full-Stack Vibe Coder specializing in CodeIgniter 3, PHP, JavaScript, modern web architectures, and AI-driven applications.',
 
