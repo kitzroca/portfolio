@@ -126,6 +126,10 @@ export const Home: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
 
+    if (typeof document !== 'undefined' && data.page_title) {
+      document.title = data.page_title;
+    }
+
     // Trigger GitHub data fetch
     syncGitHub();
 

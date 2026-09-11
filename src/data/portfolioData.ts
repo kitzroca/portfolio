@@ -68,7 +68,7 @@ export const initialPortfolioData: PortfolioData = {
       { value: 'EVSU', label: 'STUDENT', has_link: false, link: '' },
     ],
     activity: {
-      title: 'Activity Pulse',
+      title: 'GitHub Contributions',
       handle: '@kitzroca',
       handle_url: 'https://github.com/kitzroca',
       matrix: defaultMatrix,
